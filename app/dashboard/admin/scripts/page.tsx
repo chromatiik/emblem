@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useToast } from '@/components/Toast';
+import { useConfirm } from '@/components/ConfirmDialog';
 
 type Version = {
   id: string;
@@ -16,6 +17,7 @@ type Version = {
 
 export default function AdminScriptsPage() {
   const toast = useToast();
+  const confirm = useConfirm();
   const [versions, setVersions] = useState<Version[] | null>(null);
   const [version, setVersion] = useState('');
   const [notes, setNotes] = useState('');
@@ -66,7 +68,7 @@ export default function AdminScriptsPage() {
   }
 
   async function act(id: string, action: 'enable' | 'disable' | 'delete') {
-    if (action === 'delete' && !confirm('Delete this version permanently?')) return;
+    if (action === 'delete' && !(await confirm('Delete this version permanently?', { danger: true, confirmLabel: 'Delete' }))) return;
     const res = await fetch(`/api/admin/scripts/${id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
@@ -82,7 +84,7 @@ export default function AdminScriptsPage() {
   }
 
   async function emergencyRevoke() {
-    if (!confirm('Immediately invalidate every in-progress loader session? Use this if you suspect active abuse.')) return;
+    if (!(await confirm('Immediately invalidate every in-progress loader session? Use this if you suspect active abuse.', { danger: true, confirmLabel: 'Revoke all sessions' }))) return;
     await fetch('/api/admin/emergency-revoke', { method: 'POST' });
     toast.push('All in-progress sessions revoked.', 'success');
   }

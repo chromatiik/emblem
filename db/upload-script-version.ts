@@ -73,7 +73,11 @@ async function main() {
        ON CONFLICT (key) DO UPDATE SET value = $1, updated_at = now()`,
       [version]
     );
-    console.log(`[emblem] Uploaded and enabled as the active version (id: ${versionId}).`);
+    await query(
+      `INSERT INTO configuration (key, value, updated_at) VALUES ('script_status', 'online', now())
+       ON CONFLICT (key) DO UPDATE SET value = 'online', updated_at = now()`
+    );
+    console.log(`[emblem] Uploaded and enabled as the active version (id: ${versionId}). Status set to online.`);
   } else {
     console.log(`[emblem] Uploaded as an inactive version (id: ${versionId}). Enable it from /dashboard/admin/scripts when ready.`);
   }

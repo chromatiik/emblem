@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useToast } from '@/components/Toast';
 import { CopyButton } from '@/components/CopyButton';
+import { useConfirm } from '@/components/ConfirmDialog';
 
 type KeyRow = {
   id: string;
@@ -22,6 +23,7 @@ type KeyRow = {
 
 export default function DashboardPage() {
   const toast = useToast();
+  const confirm = useConfirm();
   const [keys, setKeys] = useState<KeyRow[] | null>(null);
   const [resettingId, setResettingId] = useState<string | null>(null);
 
@@ -36,7 +38,7 @@ export default function DashboardPage() {
   }, []);
 
   async function resetHwid(id: string) {
-    if (!confirm('Reset the device bound to this key? You can only do this once a week per key.')) return;
+    if (!(await confirm('Reset the device bound to this key? You can only do this once a week per key.', { confirmLabel: 'Reset device' }))) return;
     setResettingId(id);
     try {
       const res = await fetch(`/api/keys/${id}/hwid-reset`, { method: 'POST' });

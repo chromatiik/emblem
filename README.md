@@ -99,7 +99,21 @@ Requires `DATABASE_URL` to be set in your local `.env` (or `.env.local`) pointin
 
 Either way, this is what `/api/loader/payload` serves after a successful auth handshake — it's never rendered into any public page.
 
-**Self-verifying payloads**: your script can independently re-check its own key at runtime, via `POST /api/loader/verify` (`{ key, hwid } → { valid: true|false }`). This is a *second*, independent check — it doesn't replace the real handshake in `/api/loader/auth`, which remains the only way to obtain the payload at all. What it adds: if a decrypted copy of your script ever ended up outside the normal loadstring flow (saved, shared, re-run standalone), it still can't run without the server actively confirming the key is valid right now. `Emblem-with-key-check.lua` in this delivery is your uploaded script with this check prepended — upload that file instead of the original if you want this protection live.
+**Self-verifying payloads**: your script can independently re-check its own key at runtime, via `POST /api/loader/verify` (`{ key, hwid } → { valid: true|false }`). This is a *second*, independent check — it doesn't replace the real handshake in `/api/loader/auth`, which remains the only way to obtain the payload at all. What it adds: if a decrypted copy of your script ever ended up outside the normal loadstring flow (saved, shared, re-run standalone), it still can't run without the server actively confirming the key is valid right now.
+
+There are two variants of this, and which one you upload matters:
+This ships as one file (`Emblem.lua`) with a `testing_key`/`verificationstring` pair at the very top:
+```lua
+local testing_key = ""                    -- set to match verificationstring to skip verification locally
+local verificationstring = "cwishdi3aicsj" -- change this before every real upload, see below
+```
+Set `testing_key` to the same value as `verificationstring` while developing, and the script skips straight to your real code with no network call. **Before uploading this file for real customers, blank `testing_key` back to `""`.**
+
+One thing worth understanding, not just taking on faith: blanking `testing_key` alone is not airtight. `verificationstring` is still sitting in plain text in the file every customer receives — anyone who reads it could copy that exact value into their own `testing_key` and bypass verification the same way you do. The fix that actually closes this is changing `verificationstring` to a new random value (or removing the whole block) before each upload, so the value that leaked with the last version is worthless against the next one. Blanking `testing_key` alone stops *accidental* left-on bypasses; it doesn't stop someone who deliberately reads the file.
+
+If verification fails (no key, wrong key, or key no longer valid), a small black-and-white in-game box appears — draggable by its title bar, with an X to close it — with a key input, a **Get Key** button (copies your pricing page link to clipboard), and a **Check Key** button (re-verifies whatever's typed in, and if valid, continues into your script automatically — no re-run needed). The rest of your script only executes after this passes, one way or another.
+
+**If the landing page shows "Offline" even though a script version is enabled**: this was a real bug, now fixed — disabling any version correctly set the site-wide status to offline, but enabling a version never set it back to online, in both the admin panel and the CLI upload tool. If you hit this before the fix, either re-run `npm run upload-script -- ... --enable` now, or just flip it manually from `/dashboard/admin/settings`.
 
 ## 7. Run locally / deploy
 

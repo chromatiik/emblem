@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useToast } from '@/components/Toast';
+import { Dropdown } from '@/components/Dropdown';
 
 type ConfigRow = { key: string; value: string; updated_at: string };
 
@@ -86,14 +87,15 @@ export default function SettingsPage() {
           <h2 className="font-bold text-ink">Script status</h2>
           <p className="mt-1 text-sm text-neutral-400">Shown on the landing page.</p>
           <div className="mt-3 flex gap-2">
-            <select
+            <Dropdown
               value={scriptStatus}
-              onChange={(e) => setScriptStatus(e.target.value)}
-              className="flex-1 rounded-lg border border-white/10 bg-white/[0.04] px-3.5 py-2.5 text-sm text-ink outline-none focus:border-ink/30"
-            >
-              <option value="online">Online</option>
-              <option value="offline">Offline</option>
-            </select>
+              onChange={setScriptStatus}
+              options={[
+                { value: 'online', label: 'Online' },
+                { value: 'offline', label: 'Offline' },
+              ]}
+              className="flex-1"
+            />
             <button
               onClick={() => save('script_status', scriptStatus)}
               disabled={saving === 'script_status'}

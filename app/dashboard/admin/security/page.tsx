@@ -2,9 +2,11 @@
 
 import { useState } from 'react';
 import { useToast } from '@/components/Toast';
+import { useConfirm } from '@/components/ConfirmDialog';
 
 export default function AdminSecurityPage() {
   const toast = useToast();
+  const confirm = useConfirm();
   const [qrCode, setQrCode] = useState<string | null>(null);
   const [secret, setSecret] = useState<string | null>(null);
   const [code, setCode] = useState('');
@@ -50,7 +52,7 @@ export default function AdminSecurityPage() {
   }
 
   async function disable() {
-    if (!confirm('Disable two-factor authentication?')) return;
+    if (!(await confirm('Disable two-factor authentication?', { danger: true, confirmLabel: 'Disable 2FA' }))) return;
     setBusy(true);
     try {
       const res = await fetch('/api/auth/totp/disable', {

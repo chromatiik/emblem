@@ -20,7 +20,25 @@ local HttpService = game:GetService("HttpService")
 
 local function getKey()
   local gg = getgenv
-  return (gg and gg().script_key) or _G.script_key or (gg and gg().Key) or _G.Key
+  local genvKey = gg and gg().script_key
+  local globalKey = _G.script_key
+  local genvOldKey = gg and gg().Key
+  local globalOldKey = _G.Key
+
+  local resolved = genvKey or globalKey or genvOldKey or globalOldKey
+  if resolved ~= nil and type(resolved) ~= "string" then
+    resolved = tostring(resolved)
+  end
+
+  if resolved == nil or resolved == "" then
+    warn("[Emblem] Key lookup diagnostic — getgenv() available: " .. tostring(gg ~= nil)
+      .. " | getgenv().script_key: " .. tostring(genvKey)
+      .. " | _G.script_key: " .. tostring(globalKey)
+      .. " | getgenv().Key: " .. tostring(genvOldKey)
+      .. " | _G.Key: " .. tostring(globalOldKey))
+  end
+
+  return resolved
 end
 
 local function getHWID()

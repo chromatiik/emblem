@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useToast } from '@/components/Toast';
+import { usePromptText } from '@/components/ConfirmDialog';
 
 type UserRow = {
   id: string;
@@ -19,6 +20,7 @@ type UserRow = {
 
 export default function AdminUsersPage() {
   const toast = useToast();
+  const promptText = usePromptText();
   const [users, setUsers] = useState<UserRow[] | null>(null);
   const [search, setSearch] = useState('');
 
@@ -47,8 +49,8 @@ export default function AdminUsersPage() {
     load(search);
   }
 
-  function banIp(user: UserRow) {
-    const reason = prompt(`Ban IP ${user.last_ip}? Optional reason:`);
+  async function banIp(user: UserRow) {
+    const reason = await promptText(`Ban IP ${user.last_ip}?`, { placeholder: 'Optional reason', danger: true, confirmLabel: 'Ban IP' });
     if (reason === null) return; // cancelled
     act(user.id, 'ban_ip', reason || undefined);
   }

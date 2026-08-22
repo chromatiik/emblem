@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useToast } from '@/components/Toast';
 import { CopyButton } from '@/components/CopyButton';
+import { useConfirm } from '@/components/ConfirmDialog';
 
 type KeyRow = {
   id: string;
@@ -20,6 +21,7 @@ type KeyRow = {
 
 export default function AdminKeysPage() {
   const toast = useToast();
+  const confirm = useConfirm();
   const [keys, setKeys] = useState<KeyRow[] | null>(null);
   const [email, setEmail] = useState('');
   const [days, setDays] = useState('');
@@ -78,7 +80,7 @@ export default function AdminKeysPage() {
   }
 
   async function deleteKey(id: string) {
-    if (!confirm('Permanently delete this key? This cannot be undone.')) return;
+    if (!(await confirm('Permanently delete this key? This cannot be undone.', { danger: true, confirmLabel: 'Delete' }))) return;
     const res = await fetch(`/api/admin/keys/${id}`, { method: 'DELETE' });
     const data = await res.json();
     if (!res.ok) {

@@ -33,6 +33,7 @@ async function PATCHHandler(req: Request, { params }: { params: { id: string } }
     await query(`UPDATE script_versions SET is_enabled = FALSE WHERE is_enabled = TRUE`);
     await query(`UPDATE script_versions SET is_enabled = TRUE WHERE id = $1`, [version.id]);
     await setConfig('current_version', version.version);
+    await setConfig('script_status', 'online');
   } else if (body.action === 'disable') {
     await query(`UPDATE script_versions SET is_enabled = FALSE WHERE id = $1`, [version.id]);
     await setConfig('script_status', 'offline');

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useToast } from '@/components/Toast';
+import { useConfirm } from '@/components/ConfirmDialog';
 import { formatPrice } from '@/lib/format';
 
 type Plan = {
@@ -26,6 +27,7 @@ const DURATION_PRESETS = [
 
 export default function AdminPlansPage() {
   const toast = useToast();
+  const confirm = useConfirm();
   const [plans, setPlans] = useState<Plan[] | null>(null);
 
   const [name, setName] = useState('');
@@ -97,7 +99,7 @@ export default function AdminPlansPage() {
   }
 
   async function deletePlan(plan: Plan) {
-    if (!confirm(`Delete "${plan.name}"? This can't be undone.`)) return;
+    if (!(await confirm(`Delete "${plan.name}"? This can't be undone.`, { danger: true, confirmLabel: 'Delete' }))) return;
     const res = await fetch(`/api/admin/plans/${plan.id}`, { method: 'DELETE' });
     const data = await res.json();
     if (!res.ok) {

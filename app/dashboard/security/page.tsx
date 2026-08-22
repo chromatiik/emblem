@@ -2,11 +2,13 @@
 
 import { useEffect, useState } from 'react';
 import { useToast } from '@/components/Toast';
+import { useConfirm } from '@/components/ConfirmDialog';
 
 type Session = { id: string; userAgent: string; createdAt: string; isCurrent: boolean };
 
 export default function SecurityPage() {
   const toast = useToast();
+  const confirm = useConfirm();
   const [sessions, setSessions] = useState<Session[] | null>(null);
   const [current, setCurrent] = useState('');
   const [next, setNext] = useState('');
@@ -24,7 +26,7 @@ export default function SecurityPage() {
   }, []);
 
   async function revokeOthers() {
-    if (!confirm('Log out every other session? This device will stay logged in.')) return;
+    if (!(await confirm('Log out every other session? This device will stay logged in.', { confirmLabel: 'Log out others' }))) return;
     await fetch('/api/auth/sessions', { method: 'DELETE' });
     toast.push('Other sessions logged out.', 'success');
     loadSessions();
