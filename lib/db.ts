@@ -5,22 +5,29 @@ import ws from 'ws';
 
 neonConfig.webSocketConstructor = ws;
 
-if (!process.env.DATABASE_URL) {
-  throw new Error('[emblem] Missing DATABASE_URL environment variable.');
-}
-
 // A module-level singleton pool, reused across warm serverless invocations.
+// Deliberately lazy: throwing at module-load time (as this used to) crashes
+// the entire serverless function on cold start, before the route handler's
+// own try/catch ever runs — the caller gets an empty/malformed response
+// with no useful error message. Constructing the pool on first actual use
+// means a missing DATABASE_URL surfaces as a normal catchable error inside
+// query(), which the wrapper below turns into something readable.
 const globalForPool = globalThis as unknown as { emblemPool?: Pool };
 
-export const pool =
-  globalForPool.emblemPool ??
-  new Pool({
-    connectionString: process.env.DATABASE_URL,
-    max: 5,
-  });
+export function getPool(): Pool {
+  if (globalForPool.emblemPool) return globalForPool.emblemPool;
 
-if (process.env.NODE_ENV !== 'production') {
+  if (!process.env.DATABASE_URL) {
+    throw new Error(
+      '[emblem] Missing DATABASE_URL environment variable. If this is happening on Vercel, ' +
+        'check Project Settings → Environment Variables — env vars in a local .env file are ' +
+        'never read by a deployed build, they have to be set there separately.'
+    );
+  }
+
+  const pool = new Pool({ connectionString: process.env.DATABASE_URL, max: 5 });
   globalForPool.emblemPool = pool;
+  return pool;
 }
 
 /**
@@ -29,7 +36,7 @@ if (process.env.NODE_ENV !== 'production') {
  */
 export async function query<T = any>(text: string, params: any[] = []): Promise<{ rows: T[] }> {
   try {
-    return (await pool.query(text, params)) as unknown as { rows: T[] };
+    return (await getPool().query(text, params)) as unknown as { rows: T[] };
   } catch (err: any) {
     // 42703 = undefined column, 22001 = value too long for column type.
     // Both are the signature of a database that's missing a schema change

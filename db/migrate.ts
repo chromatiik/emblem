@@ -5,17 +5,17 @@
 import 'dotenv/config';
 import fs from 'fs';
 import path from 'path';
-import { pool } from '../lib/db';
+import { getPool } from '../lib/db';
 
 async function main() {
   const sql = fs.readFileSync(path.join(__dirname, 'schema.sql'), 'utf8');
   console.log('[emblem] Applying schema...');
-  await pool.query(sql);
+  await getPool().query(sql);
   console.log('[emblem] Schema applied.');
 
   const adminEmail = process.env.INITIAL_ADMIN_EMAIL;
   if (adminEmail) {
-    const result = await pool.query(
+    const result = await getPool().query(
       `UPDATE users SET role = 'admin' WHERE email = $1 AND role != 'admin' AND role != 'owner' RETURNING username`,
       [adminEmail.toLowerCase()]
     );
@@ -29,7 +29,7 @@ async function main() {
     }
   }
 
-  await pool.end();
+  await getPool().end();
 }
 
 main().catch((err) => {

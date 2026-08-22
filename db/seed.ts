@@ -3,13 +3,13 @@
 // dashboard instead — this is a convenience, not a requirement).
 // Run with: npx tsx db/seed.ts
 import 'dotenv/config';
-import { pool, query } from '../lib/db';
+import { getPool, query } from '../lib/db';
 
 async function main() {
   const existing = await query(`SELECT COUNT(*) AS count FROM pricing_plans`);
   if (parseInt(existing.rows[0].count, 10) > 0) {
     console.log('[emblem] Pricing plans already exist — skipping seed. Delete existing rows first if you want to reseed.');
-    await pool.end();
+    await getPool().end();
     return;
   }
 
@@ -22,15 +22,10 @@ async function main() {
   );
 
   console.log('[emblem] Seeded 3 example pricing plans (GBP). Edit or replace them from /dashboard/admin/plans.');
-  await pool.end();
+  await getPool().end();
 }
 
 main().catch((err) => {
   console.error(err);
   process.exit(1);
 });
-
-
-
-
-
