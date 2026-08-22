@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { looksLikeBrowser } from '@/lib/audit';
 
 export const runtime = 'nodejs';
 
@@ -49,20 +50,23 @@ end
 local function post(url, data)
   local body = HttpService:JSONEncode(data)
   local headers = { ["Content-Type"] = "application/json" }
-  if syn and syn.request then
-    local res = syn.request({ Url = url, Method = "POST", Headers = headers, Body = body })
-    return res.Body, res.StatusCode
-  elseif http_request then
-    local res = http_request({ Url = url, Method = "POST", Headers = headers, Body = body })
-    return res.Body, res.StatusCode
-  elseif request then
-    local res = request({ Url = url, Method = "POST", Headers = headers, Body = body })
-    return res.Body, res.StatusCode
-  else
-    local ok, res = pcall(function() return game:HttpPost(url, body, Enum.HttpContentType.ApplicationJson) end)
-    if ok then return res, 200 end
-    return nil, 0
-  end
+  local ok, resOrErr, status = pcall(function()
+    if syn and syn.request then
+      local res = syn.request({ Url = url, Method = "POST", Headers = headers, Body = body })
+      return res.Body, res.StatusCode
+    elseif http_request then
+      local res = http_request({ Url = url, Method = "POST", Headers = headers, Body = body })
+      return res.Body, res.StatusCode
+    elseif request then
+      local res = request({ Url = url, Method = "POST", Headers = headers, Body = body })
+      return res.Body, res.StatusCode
+    else
+      local res = game:HttpPost(url, body, Enum.HttpContentType.ApplicationJson)
+      return res, 200
+    end
+  end)
+  if ok then return resOrErr, status end
+  return nil, 0
 end
 
 local Key = getKey()
@@ -121,7 +125,19 @@ fn()
 `.trim();
 }
 
-export async function GET() {
+export async function GET(req: Request) {
+  // Soft deterrent only, not real access control: this blocks a normal
+  // web browser from just opening the URL and reading the source, but it
+  // cannot stop a script or curl request that sets a different
+  // User-Agent — that takes about ten seconds for anyone who wants to. The
+  // real protection was never meant to live here; it's the fact that this
+  // file contains no sensitive logic at all (see the note above) and that
+  // the actual payload endpoint requires a full authenticated handshake
+  // that a captured copy of this bootstrap script alone can't satisfy.
+  if (looksLikeBrowser(req.headers.get('user-agent'))) {
+    return new NextResponse('', { status: 403 });
+  }
+
   const siteUrl = process.env.SITE_URL || 'https://emblem.gg';
   return new NextResponse(buildLoaderLua(siteUrl), {
     status: 200,

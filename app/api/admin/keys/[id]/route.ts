@@ -80,3 +80,38 @@ async function PATCHHandler(req: Request, { params }: { params: { id: string } }
 
 export const PATCH = withErrorHandling(PATCHHandler);
 
+async function DELETEHandler(req: Request, { params }: { params: { id: string } }) {
+  const auth = await requireAdmin();
+  if (auth instanceof NextResponse) return auth;
+
+  const key = await queryOne<{ id: string; key_preview: string }>(`SELECT id, key_preview FROM keys WHERE id = $1`, [params.id]);
+  if (!key) return NextResponse.json({ error: 'Key not found.' }, { status: 404 });
+
+  try {
+    await query(`DELETE FROM keys WHERE id = $1`, [key.id]);
+  } catch (err: any) {
+    if (err?.code === '23503') {
+      // foreign key violation — a purchase record still points at this key.
+      // Purchases are financial history and deliberately don't cascade-delete.
+      return NextResponse.json(
+        { error: 'This key has a purchase record tied to it and can\u2019t be deleted — revoke or ban it instead.' },
+        { status: 409 }
+      );
+    }
+    throw err;
+  }
+
+  await logAudit({
+    actorUserId: auth.id,
+    action: 'key_deleted',
+    targetType: 'key',
+    targetId: key.id,
+    details: { keyPreview: key.key_preview },
+    ipHash: getRequestIpHash(req),
+  });
+
+  return NextResponse.json({ ok: true });
+}
+
+export const DELETE = withErrorHandling(DELETEHandler);
+

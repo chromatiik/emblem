@@ -8,9 +8,28 @@ const inter = Inter({
   display: 'swap',
 });
 
+const SITE_URL = process.env.SITE_URL || 'https://getemblem.lol';
+const DESCRIPTION =
+  'Experience Emblem, a premium Deshood script built with secure key-based authentication and reliable access.';
+
 export const metadata: Metadata = {
-  title: 'Emblem — Premium Roblox Scripts',
-  description: 'Protect, deliver, and manage premium Roblox scripts with real key-based authentication.',
+  title: 'Emblem',
+  description: DESCRIPTION,
+  metadataBase: new URL(SITE_URL),
+  openGraph: {
+    title: 'Emblem',
+    description: DESCRIPTION,
+    url: SITE_URL,
+    siteName: 'Emblem',
+    images: [{ url: '/og-image.png', width: 1200, height: 630, alt: 'Emblem' }],
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Emblem',
+    description: DESCRIPTION,
+    images: ['/og-image.png'],
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

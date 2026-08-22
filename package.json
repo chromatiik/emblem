@@ -8,6 +8,7 @@
     "start": "next start",
     "migrate": "tsx db/migrate.ts",
     "seed": "tsx db/seed.ts",
+    "upload-script": "tsx db/upload-script-version.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

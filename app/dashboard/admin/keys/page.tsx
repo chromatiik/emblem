@@ -77,6 +77,18 @@ export default function AdminKeysPage() {
     load();
   }
 
+  async function deleteKey(id: string) {
+    if (!confirm('Permanently delete this key? This cannot be undone.')) return;
+    const res = await fetch(`/api/admin/keys/${id}`, { method: 'DELETE' });
+    const data = await res.json();
+    if (!res.ok) {
+      toast.push(data.error || 'Could not delete key.', 'error');
+      return;
+    }
+    toast.push('Key deleted.', 'success');
+    load();
+  }
+
   return (
     <div>
       <h1 className="text-2xl font-bold text-ink">Keys</h1>
@@ -165,6 +177,7 @@ export default function AdminKeysPage() {
                     {k.status !== 'active' && <ActionBtn onClick={() => act(k.id, 'reactivate')}>Reactivate</ActionBtn>}
                     {k.hwid_bound && <ActionBtn onClick={() => act(k.id, 'hwid_reset')}>Reset HWID</ActionBtn>}
                     <ActionBtn onClick={() => act(k.id, 'extend', { extendDays: 30 })}>+30d</ActionBtn>
+                    <ActionBtn danger onClick={() => deleteKey(k.id)}>Delete</ActionBtn>
                   </div>
                 </td>
               </tr>

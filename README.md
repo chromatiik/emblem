@@ -86,7 +86,20 @@ npm run seed        # optional: adds 3 example pricing plans
 
 ## 6. Upload your first script version
 
-From `/dashboard/admin/scripts`, paste your Lua payload, set a version number, check "make active immediately," and upload. This is what `/api/loader/payload` serves after a successful auth handshake — it's never rendered into any public page.
+Two ways to do this — same result either way, use whichever fits:
+
+**Small scripts**: from `/dashboard/admin/scripts`, paste your Lua payload directly, set a version number, check "make active immediately," and upload.
+
+**Large scripts** (the browser textarea gets impractical past a few hundred KB): use the CLI tool instead, which writes straight to the database from a local file:
+```bash
+npm run upload-script -- ./YourScript.lua 1.0.0 --enable
+# optional flags: --notes "what changed" --executors "Xeno,Solara,Wave"
+```
+Requires `DATABASE_URL` to be set in your local `.env` (or `.env.local`) pointing at the same database your deployment uses — this writes directly, it doesn't go through the website at all.
+
+Either way, this is what `/api/loader/payload` serves after a successful auth handshake — it's never rendered into any public page.
+
+**Self-verifying payloads**: your script can independently re-check its own key at runtime, via `POST /api/loader/verify` (`{ key, hwid } → { valid: true|false }`). This is a *second*, independent check — it doesn't replace the real handshake in `/api/loader/auth`, which remains the only way to obtain the payload at all. What it adds: if a decrypted copy of your script ever ended up outside the normal loadstring flow (saved, shared, re-run standalone), it still can't run without the server actively confirming the key is valid right now. `Emblem-with-key-check.lua` in this delivery is your uploaded script with this check prepended — upload that file instead of the original if you want this protection live.
 
 ## 7. Run locally / deploy
 

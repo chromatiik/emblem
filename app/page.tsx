@@ -130,10 +130,7 @@ export default async function LandingPage() {
 
         {/* Features */}
         <section className="mx-auto max-w-5xl px-6 py-24">
-          <h2 className="text-center text-3xl font-bold text-ink">Built to actually stop unauthorized use</h2>
-          <p className="mx-auto mt-3 max-w-lg text-center text-neutral-400">
-            Not marketing claims — this is what the auth flow actually does.
-          </p>
+          <h2 className="text-center text-3xl font-bold text-ink">Built to win</h2>
           <div className="mt-14 grid gap-5 sm:grid-cols-2">
             {FEATURES.map((f, i) => (
               <div
