@@ -4,6 +4,7 @@ import { query, queryOne } from '@/lib/db';
 import { hashToken } from '@/lib/crypto';
 import { getRequestIpHash, looksLikeBrowser } from '@/lib/audit';
 import { isRateLimited } from '@/lib/rateLimit';
+import { withErrorHandling } from '@/lib/api-error';
 
 export const runtime = 'nodejs';
 
@@ -11,7 +12,7 @@ const bodySchema = z.object({
   sessionToken: z.string().min(32).max(128),
 });
 
-export async function POST(req: Request) {
+async function POSTHandler(req: Request) {
   const ipHash = getRequestIpHash(req);
 
   if (await isRateLimited(`loader_payload_ip:${ipHash}`, 30, 60)) {
@@ -70,3 +71,6 @@ export async function POST(req: Request) {
 
   return new NextResponse(version.payload, { status: 200, headers: { 'Content-Type': 'text/plain; charset=utf-8' } });
 }
+
+export const POST = withErrorHandling(POSTHandler);
+

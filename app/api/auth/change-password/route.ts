@@ -4,6 +4,7 @@ import { query, queryOne } from '@/lib/db';
 import { requireUser } from '@/lib/rbac';
 import { hashPassword, verifyPassword, isCommonPassword, getCurrentSessionToken, revokeAllSessions } from '@/lib/auth';
 import { logAudit, getRequestIpHash } from '@/lib/audit';
+import { withErrorHandling } from '@/lib/api-error';
 
 export const runtime = 'nodejs';
 
@@ -12,7 +13,7 @@ const bodySchema = z.object({
   newPassword: z.string(),
 });
 
-export async function POST(req: Request) {
+async function POSTHandler(req: Request) {
   const auth = await requireUser();
   if (auth instanceof NextResponse) return auth;
 
@@ -46,3 +47,6 @@ export async function POST(req: Request) {
 
   return NextResponse.json({ ok: true });
 }
+
+export const POST = withErrorHandling(POSTHandler);
+

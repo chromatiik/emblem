@@ -1,10 +1,11 @@
 import { NextResponse } from 'next/server';
 import { query } from '@/lib/db';
 import { requireAdmin } from '@/lib/rbac';
+import { withErrorHandling } from '@/lib/api-error';
 
 export const runtime = 'nodejs';
 
-export async function GET(req: Request) {
+async function GETHandler(req: Request) {
   const auth = await requireAdmin();
   if (auth instanceof NextResponse) return auth;
 
@@ -21,3 +22,6 @@ export async function GET(req: Request) {
 
   return NextResponse.json({ logs: rows });
 }
+
+export const GET = withErrorHandling(GETHandler);
+

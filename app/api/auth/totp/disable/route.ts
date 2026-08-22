@@ -4,12 +4,13 @@ import { query, queryOne } from '@/lib/db';
 import { requireAdmin } from '@/lib/rbac';
 import { verifyPassword } from '@/lib/auth';
 import { logAudit, getRequestIpHash } from '@/lib/audit';
+import { withErrorHandling } from '@/lib/api-error';
 
 export const runtime = 'nodejs';
 
 const bodySchema = z.object({ password: z.string() });
 
-export async function POST(req: Request) {
+async function POSTHandler(req: Request) {
   const auth = await requireAdmin();
   if (auth instanceof NextResponse) return auth;
 
@@ -31,3 +32,6 @@ export async function POST(req: Request) {
 
   return NextResponse.json({ ok: true });
 }
+
+export const POST = withErrorHandling(POSTHandler);
+

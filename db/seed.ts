@@ -3,7 +3,7 @@
 // dashboard instead — this is a convenience, not a requirement).
 // Run with: npx tsx db/seed.ts
 import 'dotenv/config';
-import { getPool, query } from '../lib/db';
+import { getPool, query } from '../lib/db-core';
 
 async function main() {
   const existing = await query(`SELECT COUNT(*) AS count FROM pricing_plans`);

@@ -25,9 +25,12 @@ CREATE TABLE IF NOT EXISTS users (
   totp_enabled    BOOLEAN NOT NULL DEFAULT FALSE,
   failed_logins   INTEGER NOT NULL DEFAULT 0,
   locked_until    TIMESTAMPTZ,
+  last_ip         TEXT DEFAULT '',                     -- raw IP, unlike ip_hash elsewhere — needed for admin visibility and ban enforcement
+  last_ip_at      TIMESTAMPTZ,
   created_at      TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 CREATE INDEX IF NOT EXISTS idx_users_role ON users(role);
+CREATE INDEX IF NOT EXISTS idx_users_last_ip ON users(last_ip);
 
 -- ============================================================================
 -- sessions — web dashboard/admin login sessions (NOT loader sessions)
@@ -69,6 +72,7 @@ CREATE TABLE IF NOT EXISTS keys (
   id                    UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   key_hash              TEXT NOT NULL UNIQUE,            -- sha256(plaintext key) — plaintext is shown once, never stored
   key_preview           VARCHAR(48) NOT NULL,             -- e.g. "EMBLEM-••••-••••-••••-93QZ" for display
+  key_encrypted         TEXT NOT NULL DEFAULT '',          -- AES-256-GCM ciphertext, decryptable server-side for admin/owner lookup — see lib/crypto.ts
   user_id               UUID REFERENCES users(id) ON DELETE SET NULL,
   plan_id               UUID REFERENCES pricing_plans(id),
   status                VARCHAR(12) NOT NULL DEFAULT 'active', -- active | revoked | banned | expired
@@ -257,6 +261,7 @@ CREATE INDEX IF NOT EXISTS idx_rate_limit_bucket_time ON rate_limit_hits(bucket,
 -- a no-op once the table exists, so new columns need to be added explicitly.
 -- ============================================================================
 ALTER TABLE keys ALTER COLUMN key_preview TYPE VARCHAR(48);
+ALTER TABLE keys ADD COLUMN IF NOT EXISTS key_encrypted TEXT NOT NULL DEFAULT '';
 ALTER TABLE purchases ADD COLUMN IF NOT EXISTS payment_provider VARCHAR(20) NOT NULL DEFAULT 'stripe';
 ALTER TABLE purchases ADD COLUMN IF NOT EXISTS crypto_payment_id TEXT DEFAULT '';
 ALTER TABLE purchases ADD COLUMN IF NOT EXISTS crypto_pay_address TEXT DEFAULT '';
@@ -279,3 +284,19 @@ CREATE TABLE IF NOT EXISTS crypto_payment_events (
 -- A given (payment_id, payment_status) pair should only ever be acted on
 -- once — NOWPayments may redeliver the same status update.
 CREATE UNIQUE INDEX IF NOT EXISTS idx_crypto_payment_events_unique ON crypto_payment_events(payment_id, payment_status);
+
+-- ============================================================================
+-- banned_ips — enforced at registration, login, and the loader auth
+-- handshake (i.e. both "using the site" and "using the script").
+-- ============================================================================
+CREATE TABLE IF NOT EXISTS banned_ips (
+  id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  ip          TEXT NOT NULL UNIQUE,
+  reason      TEXT DEFAULT '',
+  banned_by   UUID REFERENCES users(id),
+  created_at  TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+ALTER TABLE users ADD COLUMN IF NOT EXISTS last_ip TEXT DEFAULT '';
+ALTER TABLE users ADD COLUMN IF NOT EXISTS last_ip_at TIMESTAMPTZ;
+CREATE INDEX IF NOT EXISTS idx_users_last_ip ON users(last_ip);

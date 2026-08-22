@@ -11,8 +11,10 @@ import {
   SESSION_DURATION_MS,
   shouldUseSecureCookie,
 } from '@/lib/auth';
-import { getRequestIpHash } from '@/lib/audit';
+import { getRequestIp, getRequestIpHash } from '@/lib/audit';
 import { isRateLimited } from '@/lib/rateLimit';
+import { isIpBanned, recordUserIp } from '@/lib/ipban';
+import { withErrorHandling } from '@/lib/api-error';
 
 export const runtime = 'nodejs';
 
@@ -22,8 +24,14 @@ const bodySchema = z.object({
   password: z.string(),
 });
 
-export async function POST(req: Request) {
+async function POSTHandler(req: Request) {
+  const ip = getRequestIp(req);
   const ipHash = getRequestIpHash(req);
+
+  if (await isIpBanned(ip)) {
+    return NextResponse.json({ error: 'Unable to create an account.' }, { status: 403 });
+  }
+
   if (await isRateLimited(`register:${ipHash}`, 8, 900)) {
     return NextResponse.json({ error: 'Too many attempts. Please wait a few minutes and try again.' }, { status: 429 });
   }
@@ -67,6 +75,8 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Could not create account.' }, { status: 500 });
   }
 
+  await recordUserIp(user.id, ip);
+
   const token = await createSession(user.id, req.headers.get('user-agent') || '', ipHash);
 
   const res = NextResponse.json({ ok: true });
@@ -79,3 +89,6 @@ export async function POST(req: Request) {
   });
   return res;
 }
+
+export const POST = withErrorHandling(POSTHandler);
+

@@ -7,6 +7,7 @@ import { CopyButton } from '@/components/CopyButton';
 type KeyRow = {
   id: string;
   key_preview: string;
+  key: string | null;
   status: string;
   hwid_bound: boolean;
   usage_count: number;
@@ -138,7 +139,16 @@ export default function AdminKeysPage() {
           <tbody>
             {keys?.map((k) => (
               <tr key={k.id} className="border-t border-white/[0.06]">
-                <td className="px-4 py-3 font-mono text-xs text-ink">{k.key_preview}</td>
+                <td className="px-4 py-3">
+                  {k.key ? (
+                    <div className="flex items-center gap-1.5">
+                      <code className="font-mono text-xs text-ink">{k.key}</code>
+                      <CopyButton text={k.key} />
+                    </div>
+                  ) : (
+                    <code className="font-mono text-xs text-neutral-400">{k.key_preview}</code>
+                  )}
+                </td>
                 <td className="px-4 py-3 text-neutral-400">{k.owner_username || '—'}</td>
                 <td className="px-4 py-3">
                   <StatusBadge status={k.status} />

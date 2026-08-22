@@ -63,7 +63,9 @@ I'm being specific about this because it matters for a security-critical project
 cp .env.example .env.local
 ```
 
-Fill in every value in `.env.example` — `DATABASE_URL`, `SESSION_SECRET` and `HWID_HASH_PEPPER` (64+ char random strings — `node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"`), Stripe keys, `DISCORD_INVITE_URL`, `SITE_URL`.
+Fill in every value in `.env.example` — `DATABASE_URL`, `SESSION_SECRET`, `HWID_HASH_PEPPER`, and `KEY_ENCRYPTION_SECRET` (all 64+ char random strings — `node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"`, generate each separately), Stripe keys, `DISCORD_INVITE_URL`, `SITE_URL`.
+
+**`KEY_ENCRYPTION_SECRET` specifically**: license keys are stored encrypted (AES-256-GCM) so admins/owners can look up a customer's actual key value, and buyers can view their own key on their dashboard — not as raw plaintext, but reversibly, using this secret. Losing it permanently loses the ability to decrypt every key already issued (they'll silently fall back to showing only the masked preview, not crash) — back it up somewhere outside the database, e.g. a password manager, not just in Vercel's env var UI.
 
 ## 4. Install, migrate, seed
 

@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { query, queryOne } from '@/lib/db';
 import { requireAdmin } from '@/lib/rbac';
 import { logAudit, getRequestIpHash } from '@/lib/audit';
+import { withErrorHandling } from '@/lib/api-error';
 
 export const runtime = 'nodejs';
 
@@ -12,7 +13,7 @@ const bodySchema = z.object({
   note: z.string().max(300).optional(),
 });
 
-export async function PATCH(req: Request, { params }: { params: { id: string } }) {
+async function PATCHHandler(req: Request, { params }: { params: { id: string } }) {
   const auth = await requireAdmin();
   if (auth instanceof NextResponse) return auth;
 
@@ -76,3 +77,6 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
 
   return NextResponse.json({ ok: true });
 }
+
+export const PATCH = withErrorHandling(PATCHHandler);
+

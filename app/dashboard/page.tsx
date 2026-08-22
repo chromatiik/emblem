@@ -2,10 +2,12 @@
 
 import { useEffect, useState } from 'react';
 import { useToast } from '@/components/Toast';
+import { CopyButton } from '@/components/CopyButton';
 
 type KeyRow = {
   id: string;
   key_preview: string;
+  key: string | null;
   status: string;
   hwid_bound: boolean;
   hwid_bound_at: string | null;
@@ -86,7 +88,18 @@ function KeyCard({ k, onReset, resetting }: { k: KeyRow; onReset: () => void; re
   return (
     <div className="rounded-2xl border border-white/10 bg-white/[0.035] p-6 backdrop-blur">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <code className="break-all font-mono text-sm text-ink">{k.key_preview}</code>
+        <div className="min-w-0 flex-1">
+          {k.key ? (
+            <div className="flex items-center gap-2">
+              <code className="break-all font-mono text-sm text-ink">{k.key}</code>
+              <CopyButton text={k.key} />
+            </div>
+          ) : (
+            <code className="break-all font-mono text-sm text-neutral-400" title="This key was generated before full-key display was added — contact support if you need it re-sent.">
+              {k.key_preview}
+            </code>
+          )}
+        </div>
         <span className={`rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide ${statusColor}`}>
           {k.status}
         </span>

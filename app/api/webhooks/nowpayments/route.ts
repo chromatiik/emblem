@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server';
 import { query, queryOne } from '@/lib/db';
 import { verifyIpnSignature } from '@/lib/nowpayments';
-import { generateLicenseKey, hashKey, keyPreview } from '@/lib/crypto';
+import { generateLicenseKey, hashKey, keyPreview, encryptKey } from '@/lib/crypto';
 import { logAudit } from '@/lib/audit';
+import { withErrorHandling } from '@/lib/api-error';
 
 export const runtime = 'nodejs';
 
@@ -28,9 +29,9 @@ async function activateKeyForCryptoPurchase(paymentId: string) {
 
   const plaintext = generateLicenseKey();
   const key = await queryOne<{ id: string }>(
-    `INSERT INTO keys (key_hash, key_preview, user_id, plan_id, expires_at)
-     VALUES ($1, $2, $3, $4, $5) RETURNING id`,
-    [hashKey(plaintext), keyPreview(plaintext), purchase.user_id, purchase.plan_id, computeExpiry(plan?.duration_days ?? null)]
+    `INSERT INTO keys (key_hash, key_preview, key_encrypted, user_id, plan_id, expires_at)
+     VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`,
+    [hashKey(plaintext), keyPreview(plaintext), encryptKey(plaintext), purchase.user_id, purchase.plan_id, computeExpiry(plan?.duration_days ?? null)]
   );
 
   await query(`UPDATE purchases SET status = 'paid', key_id = $1, paid_at = now() WHERE id = $2`, [key?.id, purchase.id]);
@@ -44,7 +45,7 @@ async function activateKeyForCryptoPurchase(paymentId: string) {
   });
 }
 
-export async function POST(req: Request) {
+async function POSTHandler(req: Request) {
   const signature = req.headers.get('x-nowpayments-sig');
   if (!signature) {
     return NextResponse.json({ error: 'Missing signature.' }, { status: 400 });
@@ -120,3 +121,6 @@ export async function POST(req: Request) {
 
   return NextResponse.json({ ok: true });
 }
+
+export const POST = withErrorHandling(POSTHandler);
+

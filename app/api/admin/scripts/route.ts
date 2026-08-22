@@ -4,10 +4,11 @@ import { query, queryOne } from '@/lib/db';
 import { requireAdmin } from '@/lib/rbac';
 import { logAudit, getRequestIpHash } from '@/lib/audit';
 import { setConfig } from '@/lib/config';
+import { withErrorHandling } from '@/lib/api-error';
 
 export const runtime = 'nodejs';
 
-export async function GET() {
+async function GETHandler() {
   const auth = await requireAdmin();
   if (auth instanceof NextResponse) return auth;
 
@@ -32,7 +33,9 @@ const createSchema = z.object({
   enableImmediately: z.boolean().optional(),
 });
 
-export async function POST(req: Request) {
+export const GET = withErrorHandling(GETHandler);
+
+async function POSTHandler(req: Request) {
   const auth = await requireAdmin();
   if (auth instanceof NextResponse) return auth;
 
@@ -66,3 +69,6 @@ export async function POST(req: Request) {
 
   return NextResponse.json({ id: version?.id });
 }
+
+export const POST = withErrorHandling(POSTHandler);
+

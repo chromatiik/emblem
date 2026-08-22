@@ -1,10 +1,11 @@
 import { NextResponse } from 'next/server';
 import { query, queryOne } from '@/lib/db';
 import { requireAdmin } from '@/lib/rbac';
+import { withErrorHandling } from '@/lib/api-error';
 
 export const runtime = 'nodejs';
 
-export async function GET() {
+async function GETHandler() {
   const auth = await requireAdmin();
   if (auth instanceof NextResponse) return auth;
 
@@ -56,3 +57,6 @@ export async function GET() {
     rateLimitEvents,
   });
 }
+
+export const GET = withErrorHandling(GETHandler);
+

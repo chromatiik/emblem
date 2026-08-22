@@ -12,6 +12,9 @@ type UserRow = {
   is_banned: boolean;
   key_count: string;
   created_at: string;
+  last_ip: string;
+  last_ip_at: string | null;
+  ip_banned: boolean;
 };
 
 export default function AdminUsersPage() {
@@ -29,11 +32,11 @@ export default function AdminUsersPage() {
     load();
   }, []);
 
-  async function act(userId: string, action: string) {
+  async function act(userId: string, action: string, reason?: string) {
     const res = await fetch('/api/admin/users', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId, action }),
+      body: JSON.stringify({ userId, action, reason }),
     });
     const data = await res.json();
     if (!res.ok) {
@@ -42,6 +45,12 @@ export default function AdminUsersPage() {
     }
     toast.push('Updated.', 'success');
     load(search);
+  }
+
+  function banIp(user: UserRow) {
+    const reason = prompt(`Ban IP ${user.last_ip}? Optional reason:`);
+    if (reason === null) return; // cancelled
+    act(user.id, 'ban_ip', reason || undefined);
   }
 
   return (
@@ -71,6 +80,7 @@ export default function AdminUsersPage() {
             <tr>
               <th className="px-4 py-3">Username</th>
               <th className="px-4 py-3">Email</th>
+              <th className="px-4 py-3">IP</th>
               <th className="px-4 py-3">Role</th>
               <th className="px-4 py-3">Status</th>
               <th className="px-4 py-3">Keys</th>
@@ -82,6 +92,20 @@ export default function AdminUsersPage() {
               <tr key={u.id} className="border-t border-white/[0.06]">
                 <td className="px-4 py-3 font-semibold text-ink">{u.username}</td>
                 <td className="px-4 py-3 text-neutral-400">{u.email}</td>
+                <td className="px-4 py-3">
+                  {u.last_ip ? (
+                    <div className="flex items-center gap-1.5">
+                      <span className="font-mono text-xs text-neutral-300">{u.last_ip}</span>
+                      {u.ip_banned && (
+                        <span className="rounded-full border border-red-500/30 bg-red-500/10 px-1.5 py-0.5 text-[9px] font-bold uppercase text-red-400">
+                          IP banned
+                        </span>
+                      )}
+                    </div>
+                  ) : (
+                    <span className="text-xs text-neutral-500">—</span>
+                  )}
+                </td>
                 <td className="px-4 py-3">
                   {u.role !== 'user' && (
                     <span className="rounded-full border border-white/15 bg-white/[0.04] px-2 py-0.5 text-[10px] font-bold uppercase text-ink">
@@ -110,6 +134,13 @@ export default function AdminUsersPage() {
                       <ActionBtn onClick={() => act(u.id, 'unban')}>Unban</ActionBtn>
                     ) : (
                       <ActionBtn danger onClick={() => act(u.id, 'ban')}>Ban</ActionBtn>
+                    )}
+                    {u.last_ip && (
+                      u.ip_banned ? (
+                        <ActionBtn onClick={() => act(u.id, 'unban_ip')}>Unban IP</ActionBtn>
+                      ) : (
+                        <ActionBtn danger onClick={() => banIp(u)}>Ban IP</ActionBtn>
+                      )
                     )}
                   </div>
                 </td>

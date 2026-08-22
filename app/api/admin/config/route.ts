@@ -4,10 +4,11 @@ import { query } from '@/lib/db';
 import { requireAdmin } from '@/lib/rbac';
 import { setConfig } from '@/lib/config';
 import { logAudit, getRequestIpHash } from '@/lib/audit';
+import { withErrorHandling } from '@/lib/api-error';
 
 export const runtime = 'nodejs';
 
-export async function GET() {
+async function GETHandler() {
   const auth = await requireAdmin();
   if (auth instanceof NextResponse) return auth;
 
@@ -20,7 +21,9 @@ const bodySchema = z.object({
   value: z.string().max(500),
 });
 
-export async function PATCH(req: Request) {
+export const GET = withErrorHandling(GETHandler);
+
+async function PATCHHandler(req: Request) {
   const auth = await requireAdmin();
   if (auth instanceof NextResponse) return auth;
 
@@ -43,3 +46,6 @@ export async function PATCH(req: Request) {
 
   return NextResponse.json({ ok: true });
 }
+
+export const PATCH = withErrorHandling(PATCHHandler);
+

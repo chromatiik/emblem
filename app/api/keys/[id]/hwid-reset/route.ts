@@ -2,12 +2,13 @@ import { NextResponse } from 'next/server';
 import { query, queryOne } from '@/lib/db';
 import { requireUser } from '@/lib/rbac';
 import { logAudit, getRequestIpHash } from '@/lib/audit';
+import { withErrorHandling } from '@/lib/api-error';
 
 export const runtime = 'nodejs';
 
 const COOLDOWN_HOURS = 24 * 7; // one self-service reset per key per week
 
-export async function POST(req: Request, { params }: { params: { id: string } }) {
+async function POSTHandler(req: Request, { params }: { params: { id: string } }) {
   const auth = await requireUser();
   if (auth instanceof NextResponse) return auth;
 
@@ -53,3 +54,6 @@ export async function POST(req: Request, { params }: { params: { id: string } })
 
   return NextResponse.json({ ok: true });
 }
+
+export const POST = withErrorHandling(POSTHandler);
+

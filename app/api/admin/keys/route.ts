@@ -2,12 +2,13 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { query, queryOne } from '@/lib/db';
 import { requireAdmin } from '@/lib/rbac';
-import { generateLicenseKey, hashKey, keyPreview } from '@/lib/crypto';
+import { generateLicenseKey, hashKey, keyPreview, encryptKey, decryptKey } from '@/lib/crypto';
 import { logAudit, getRequestIpHash } from '@/lib/audit';
+import { withErrorHandling } from '@/lib/api-error';
 
 export const runtime = 'nodejs';
 
-export async function GET(req: Request) {
+async function GETHandler(req: Request) {
   const auth = await requireAdmin();
   if (auth instanceof NextResponse) return auth;
 
@@ -20,8 +21,8 @@ export async function GET(req: Request) {
     where = `WHERE keys.status = $1`;
   }
 
-  const { rows } = await query(
-    `SELECT keys.id, keys.key_preview, keys.status, keys.hwid_hash IS NOT NULL AS hwid_bound,
+  const { rows } = await query<{ id: string; key_preview: string; key_encrypted: string; [key: string]: any }>(
+    `SELECT keys.id, keys.key_preview, keys.key_encrypted, keys.status, keys.hwid_hash IS NOT NULL AS hwid_bound,
             keys.usage_count, keys.last_used_at, keys.last_roblox_username, keys.expires_at,
             keys.admin_notes, keys.created_at, users.username AS owner_username, users.email AS owner_email
      FROM keys LEFT JOIN users ON users.id = keys.user_id
@@ -30,7 +31,19 @@ export async function GET(req: Request) {
     params
   );
 
-  return NextResponse.json({ keys: rows });
+  const keysWithPlaintext = rows.map(({ key_encrypted, ...row }) => {
+    let key = null;
+    if (key_encrypted) {
+      try {
+        key = decryptKey(key_encrypted);
+      } catch {
+        key = null; // corrupted or encrypted under a since-rotated secret — fall back to the preview only
+      }
+    }
+    return { ...row, key };
+  });
+
+  return NextResponse.json({ keys: keysWithPlaintext });
 }
 
 const createSchema = z.object({
@@ -39,7 +52,9 @@ const createSchema = z.object({
   note: z.string().max(300).optional(),
 });
 
-export async function POST(req: Request) {
+export const GET = withErrorHandling(GETHandler);
+
+async function POSTHandler(req: Request) {
   const auth = await requireAdmin();
   if (auth instanceof NextResponse) return auth;
 
@@ -61,8 +76,8 @@ export async function POST(req: Request) {
   const expiresAt = body.durationDays ? new Date(Date.now() + body.durationDays * 86400000) : null;
 
   const key = await queryOne<{ id: string }>(
-    `INSERT INTO keys (key_hash, key_preview, user_id, expires_at, admin_notes) VALUES ($1,$2,$3,$4,$5) RETURNING id`,
-    [hashKey(plaintext), keyPreview(plaintext), userId, expiresAt, body.note ?? '']
+    `INSERT INTO keys (key_hash, key_preview, key_encrypted, user_id, expires_at, admin_notes) VALUES ($1,$2,$3,$4,$5,$6) RETURNING id`,
+    [hashKey(plaintext), keyPreview(plaintext), encryptKey(plaintext), userId, expiresAt, body.note ?? '']
   );
 
   await logAudit({
@@ -74,7 +89,11 @@ export async function POST(req: Request) {
     ipHash: getRequestIpHash(req),
   });
 
-  // The plaintext key is returned exactly once, here, to the admin who
-  // generated it — it is never stored or retrievable again afterward.
+  // Returned directly here too, but it's no longer the only time it's
+  // visible — it's also decrypted and shown in the keys list above (GET),
+  // since it's now stored encrypted rather than discarded after creation.
   return NextResponse.json({ id: key?.id, plaintextKey: plaintext });
 }
+
+export const POST = withErrorHandling(POSTHandler);
+

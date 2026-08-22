@@ -1,10 +1,11 @@
 import { NextResponse } from 'next/server';
 import { queryOne } from '@/lib/db';
 import { requireUser } from '@/lib/rbac';
+import { withErrorHandling } from '@/lib/api-error';
 
 export const runtime = 'nodejs';
 
-export async function GET(_req: Request, { params }: { params: { purchaseId: string } }) {
+async function GETHandler(_req: Request, { params }: { params: { purchaseId: string } }) {
   const auth = await requireUser();
   if (auth instanceof NextResponse) return auth;
 
@@ -17,3 +18,6 @@ export async function GET(_req: Request, { params }: { params: { purchaseId: str
 
   return NextResponse.json({ status: purchase.status, keyIssued: Boolean(purchase.key_id) });
 }
+
+export const GET = withErrorHandling(GETHandler);
+

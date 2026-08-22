@@ -4,6 +4,7 @@ import { query, queryOne } from '@/lib/db';
 import { requireAdmin } from '@/lib/rbac';
 import { logAudit, getRequestIpHash } from '@/lib/audit';
 import { setConfig } from '@/lib/config';
+import { withErrorHandling } from '@/lib/api-error';
 
 export const runtime = 'nodejs';
 
@@ -11,7 +12,7 @@ const bodySchema = z.object({
   action: z.enum(['enable', 'disable', 'delete']),
 });
 
-export async function PATCH(req: Request, { params }: { params: { id: string } }) {
+async function PATCHHandler(req: Request, { params }: { params: { id: string } }) {
   const auth = await requireAdmin();
   if (auth instanceof NextResponse) return auth;
 
@@ -50,3 +51,6 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
 
   return NextResponse.json({ ok: true });
 }
+
+export const PATCH = withErrorHandling(PATCHHandler);
+

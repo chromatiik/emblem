@@ -2,8 +2,10 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { query, queryOne } from '@/lib/db';
 import { hashKey, hashHwid, generateToken, hashToken } from '@/lib/crypto';
-import { getRequestIpHash } from '@/lib/audit';
+import { getRequestIp, getRequestIpHash } from '@/lib/audit';
 import { isRateLimited } from '@/lib/rateLimit';
+import { isIpBanned } from '@/lib/ipban';
+import { withErrorHandling } from '@/lib/api-error';
 
 export const runtime = 'nodejs';
 
@@ -37,8 +39,14 @@ async function logUsage(params: {
   );
 }
 
-export async function POST(req: Request) {
+async function POSTHandler(req: Request) {
+  const ip = getRequestIp(req);
   const ipHash = getRequestIpHash(req);
+
+  if (await isIpBanned(ip)) {
+    await logUsage({ eventType: 'ip_banned' });
+    return NextResponse.json({ error: 'access_denied' }, { status: 403 });
+  }
 
   // Layered rate limiting: per-IP catches broad abuse, per-key catches a
   // single leaked key being hammered from many sources.
@@ -143,3 +151,6 @@ export async function POST(req: Request) {
 
   return NextResponse.json({ sessionToken, expiresIn: SESSION_TTL_SECONDS });
 }
+
+export const POST = withErrorHandling(POSTHandler);
+

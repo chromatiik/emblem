@@ -3,6 +3,7 @@ import QRCode from 'qrcode';
 import { authenticator } from 'otplib';
 import { query } from '@/lib/db';
 import { requireAdmin } from '@/lib/rbac';
+import { withErrorHandling } from '@/lib/api-error';
 
 export const runtime = 'nodejs';
 
@@ -12,7 +13,7 @@ export const runtime = 'nodejs';
 // false until the user proves they can produce a valid code for it via
 // /api/auth/totp/enable — otherwise a user who never finishes setup could
 // lock themselves out with a half-configured secret.
-export async function POST() {
+async function POSTHandler() {
   const auth = await requireAdmin();
   if (auth instanceof NextResponse) return auth;
 
@@ -24,3 +25,6 @@ export async function POST() {
 
   return NextResponse.json({ secret, qrCodeDataUrl });
 }
+
+export const POST = withErrorHandling(POSTHandler);
+

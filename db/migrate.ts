@@ -5,7 +5,7 @@
 import 'dotenv/config';
 import fs from 'fs';
 import path from 'path';
-import { getPool } from '../lib/db';
+import { getPool } from '../lib/db-core';
 
 async function main() {
   const sql = fs.readFileSync(path.join(__dirname, 'schema.sql'), 'utf8');

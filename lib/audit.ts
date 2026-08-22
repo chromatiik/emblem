@@ -39,11 +39,24 @@ export async function logSecurityEvent(params: {
   ]);
 }
 
-/** Extracts a best-effort client IP from a Next.js Request and returns its hash (never the raw IP). */
-export function getRequestIpHash(req: Request): string {
+function extractIp(req: Request): string {
   const xff = req.headers.get('x-forwarded-for');
-  const ip = xff ? xff.split(',')[0]!.trim() : req.headers.get('x-real-ip') || '0.0.0.0';
-  return hashIp(ip);
+  return xff ? xff.split(',')[0]!.trim() : req.headers.get('x-real-ip') || '0.0.0.0';
+}
+
+/** Extracts a best-effort client IP from a Next.js Request and returns its hash (never the raw IP). Used for rate-limit buckets and general audit logs where we deliberately don't want raw IPs at rest. */
+export function getRequestIpHash(req: Request): string {
+  return hashIp(extractIp(req));
+}
+
+/**
+ * Returns the raw client IP. Only use this where you genuinely need the
+ * real address — admin-visible fields (users.last_ip) and IP-ban
+ * enforcement. Everywhere else in this app deliberately uses the hashed
+ * version above, so a DB leak doesn't hand out a directory of real IPs.
+ */
+export function getRequestIp(req: Request): string {
+  return extractIp(req);
 }
 
 /**

@@ -24,6 +24,43 @@ export function keyPreview(plaintext: string): string {
 }
 
 // ---------------------------------------------------------------------------
+// Reversible key storage — AES-256-GCM, keyed by a dedicated server secret
+// (KEY_ENCRYPTION_SECRET, separate from HWID_HASH_PEPPER so rotating one
+// doesn't affect the other). This exists specifically so admins/owners can
+// look up a customer's actual key value (e.g. "I lost my key" support
+// requests, or a buyer viewing their own key on their dashboard) without
+// storing it as raw plaintext in the database. A database dump alone still
+// isn't enough to recover keys — you'd also need this env var, which lives
+// outside the database entirely. It's a real mitigation, not a formality,
+// but it is not equivalent to the one-way hash used for authentication
+// (hashKey/key_hash) — that remains the only thing the loader auth flow
+// actually checks against.
+// ---------------------------------------------------------------------------
+function getEncryptionKey(): Buffer {
+  const secret = process.env.KEY_ENCRYPTION_SECRET;
+  if (!secret) throw new Error('[emblem] KEY_ENCRYPTION_SECRET is not set.');
+  return crypto.createHash('sha256').update(secret).digest(); // 32 bytes, correct for AES-256
+}
+
+export function encryptKey(plaintext: string): string {
+  const iv = crypto.randomBytes(12); // GCM standard IV size
+  const cipher = crypto.createCipheriv('aes-256-gcm', getEncryptionKey(), iv);
+  const encrypted = Buffer.concat([cipher.update(plaintext, 'utf8'), cipher.final()]);
+  const authTag = cipher.getAuthTag();
+  // iv : authTag : ciphertext, each hex-encoded and colon-joined for easy storage/parsing.
+  return `${iv.toString('hex')}:${authTag.toString('hex')}:${encrypted.toString('hex')}`;
+}
+
+export function decryptKey(stored: string): string {
+  const [ivHex, authTagHex, cipherHex] = stored.split(':');
+  if (!ivHex || !authTagHex || !cipherHex) throw new Error('[emblem] Malformed encrypted key value.');
+  const decipher = crypto.createDecipheriv('aes-256-gcm', getEncryptionKey(), Buffer.from(ivHex, 'hex'));
+  decipher.setAuthTag(Buffer.from(authTagHex, 'hex'));
+  const decrypted = Buffer.concat([decipher.update(Buffer.from(cipherHex, 'hex')), decipher.final()]);
+  return decrypted.toString('utf8');
+}
+
+// ---------------------------------------------------------------------------
 // HWID hashing — we never see the raw hardware identifier in a form that's
 // useful outside this app: it's hashed with a server-side pepper before
 // storage or comparison, so a leaked database alone doesn't hand out raw

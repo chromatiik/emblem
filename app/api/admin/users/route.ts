@@ -3,10 +3,12 @@ import { z } from 'zod';
 import { query, queryOne } from '@/lib/db';
 import { requireAdmin, requireOwner } from '@/lib/rbac';
 import { logAudit, getRequestIpHash } from '@/lib/audit';
+import { banIp, unbanIp } from '@/lib/ipban';
+import { withErrorHandling } from '@/lib/api-error';
 
 export const runtime = 'nodejs';
 
-export async function GET(req: Request) {
+async function GETHandler(req: Request) {
   const auth = await requireAdmin();
   if (auth instanceof NextResponse) return auth;
 
@@ -17,13 +19,18 @@ export async function GET(req: Request) {
   let where = '';
   if (search) {
     params.push(`%${search}%`);
-    where = `WHERE username ILIKE $1 OR email ILIKE $1`;
+    where = `WHERE users.username ILIKE $1 OR users.email ILIKE $1`;
   }
 
   const { rows } = await query(
-    `SELECT id, username, email, role, is_disabled, is_banned, discord_username, roblox_username, created_at,
-            (SELECT COUNT(*) FROM keys WHERE keys.user_id = users.id) AS key_count
-     FROM users ${where} ORDER BY created_at DESC LIMIT 200`,
+    `SELECT users.id, users.username, users.email, users.role, users.is_disabled, users.is_banned,
+            users.discord_username, users.roblox_username, users.created_at, users.last_ip, users.last_ip_at,
+            (SELECT COUNT(*) FROM keys WHERE keys.user_id = users.id) AS key_count,
+            (banned_ips.ip IS NOT NULL) AS ip_banned
+     FROM users
+     LEFT JOIN banned_ips ON banned_ips.ip = users.last_ip AND users.last_ip != ''
+     ${where}
+     ORDER BY users.created_at DESC LIMIT 200`,
     params
   );
 
@@ -32,10 +39,13 @@ export async function GET(req: Request) {
 
 const patchSchema = z.object({
   userId: z.string().uuid(),
-  action: z.enum(['disable', 'enable', 'ban', 'unban', 'promote', 'demote']),
+  action: z.enum(['disable', 'enable', 'ban', 'unban', 'promote', 'demote', 'ban_ip', 'unban_ip']),
+  reason: z.string().max(300).optional(),
 });
 
-export async function PATCH(req: Request) {
+export const GET = withErrorHandling(GETHandler);
+
+async function PATCHHandler(req: Request) {
   const auth = await requireAdmin();
   if (auth instanceof NextResponse) return auth;
 
@@ -46,7 +56,10 @@ export async function PATCH(req: Request) {
     return NextResponse.json({ error: 'Invalid request.' }, { status: 400 });
   }
 
-  const target = await queryOne<{ id: string; role: string }>(`SELECT id, role FROM users WHERE id = $1`, [body.userId]);
+  const target = await queryOne<{ id: string; role: string; last_ip: string }>(
+    `SELECT id, role, last_ip FROM users WHERE id = $1`,
+    [body.userId]
+  );
   if (!target) return NextResponse.json({ error: 'User not found.' }, { status: 404 });
 
   // Only an owner can change roles, and no one can touch another owner's account.
@@ -56,6 +69,26 @@ export async function PATCH(req: Request) {
   }
   if (target.role === 'owner') {
     return NextResponse.json({ error: 'Owner accounts cannot be modified here.' }, { status: 403 });
+  }
+
+  if (body.action === 'ban_ip' || body.action === 'unban_ip') {
+    if (!target.last_ip) {
+      return NextResponse.json({ error: 'No known IP for this account yet.' }, { status: 400 });
+    }
+    if (body.action === 'ban_ip') {
+      await banIp(target.last_ip, body.reason ?? '', auth.id);
+    } else {
+      await unbanIp(target.last_ip);
+    }
+    await logAudit({
+      actorUserId: auth.id,
+      action: `user_${body.action}`,
+      targetType: 'user',
+      targetId: body.userId,
+      details: { ip: target.last_ip, reason: body.reason ?? null },
+      ipHash: getRequestIpHash(req),
+    });
+    return NextResponse.json({ ok: true });
   }
 
   const actions: Record<string, string> = {
@@ -78,3 +111,6 @@ export async function PATCH(req: Request) {
 
   return NextResponse.json({ ok: true });
 }
+
+export const PATCH = withErrorHandling(PATCHHandler);
+

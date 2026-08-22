@@ -2,10 +2,11 @@ import { NextResponse } from 'next/server';
 import { query } from '@/lib/db';
 import { getCurrentUser, getCurrentSessionToken, revokeAllSessions } from '@/lib/auth';
 import { hashToken } from '@/lib/crypto';
+import { withErrorHandling } from '@/lib/api-error';
 
 export const runtime = 'nodejs';
 
-export async function GET() {
+async function GETHandler() {
   const user = await getCurrentUser();
   if (!user) return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
 
@@ -30,7 +31,10 @@ export async function GET() {
 }
 
 /** Revokes every session except the current one. */
-export async function DELETE() {
+
+export const GET = withErrorHandling(GETHandler);
+
+async function DELETEHandler() {
   const user = await getCurrentUser();
   if (!user) return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
 
@@ -39,3 +43,6 @@ export async function DELETE() {
 
   return NextResponse.json({ ok: true });
 }
+
+export const DELETE = withErrorHandling(DELETEHandler);
+

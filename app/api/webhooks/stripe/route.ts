@@ -1,9 +1,10 @@
 import { NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe';
 import { query, queryOne } from '@/lib/db';
-import { generateLicenseKey, hashKey, keyPreview } from '@/lib/crypto';
+import { generateLicenseKey, hashKey, keyPreview, encryptKey } from '@/lib/crypto';
 import { logAudit } from '@/lib/audit';
 import type Stripe from 'stripe';
+import { withErrorHandling } from '@/lib/api-error';
 
 export const runtime = 'nodejs';
 
@@ -32,9 +33,9 @@ async function activateKeyForPurchase(sessionId: string, paymentIntentId: string
 
   const plaintext = generateLicenseKey();
   const key = await queryOne<{ id: string }>(
-    `INSERT INTO keys (key_hash, key_preview, user_id, plan_id, expires_at)
-     VALUES ($1, $2, $3, $4, $5) RETURNING id`,
-    [hashKey(plaintext), keyPreview(plaintext), purchase.user_id, purchase.plan_id, computeExpiry(plan?.duration_days ?? null)]
+    `INSERT INTO keys (key_hash, key_preview, key_encrypted, user_id, plan_id, expires_at)
+     VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`,
+    [hashKey(plaintext), keyPreview(plaintext), encryptKey(plaintext), purchase.user_id, purchase.plan_id, computeExpiry(plan?.duration_days ?? null)]
   );
 
   await query(
@@ -50,10 +51,11 @@ async function activateKeyForPurchase(sessionId: string, paymentIntentId: string
     details: { keyId: key?.id },
   });
 
-  // NOTE: the plaintext key is intentionally not stored or logged anywhere
-  // beyond this point. In a full deployment you'd deliver it here — e.g.
-  // queue a "your key is ready" email — since it can never be recovered
-  // from the database afterward (only the hash is kept).
+  // NOTE: the plaintext key itself is never logged anywhere. It IS
+  // recoverable after this point though — encrypted (see encryptKey/
+  // decryptKey in lib/crypto.ts) — so the buyer can view it from their
+  // dashboard and support can look it up if needed. A full deployment
+  // would probably also email it here as a convenience, on top of that.
 }
 
 async function handleRefundOrDispute(paymentIntentId: string, newStatus: 'refunded' | 'disputed') {
@@ -77,7 +79,7 @@ async function handleRefundOrDispute(paymentIntentId: string, newStatus: 'refund
   }
 }
 
-export async function POST(req: Request) {
+async function POSTHandler(req: Request) {
   const signature = req.headers.get('stripe-signature');
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
@@ -154,3 +156,6 @@ export async function POST(req: Request) {
 
   return NextResponse.json({ ok: true });
 }
+
+export const POST = withErrorHandling(POSTHandler);
+

@@ -3,8 +3,10 @@ import { z } from 'zod';
 import bcrypt from 'bcryptjs';
 import { query, queryOne } from '@/lib/db';
 import { createSession, SESSION_COOKIE, SESSION_DURATION_MS, shouldUseSecureCookie } from '@/lib/auth';
-import { getRequestIpHash, logSecurityEvent } from '@/lib/audit';
+import { getRequestIp, getRequestIpHash, logSecurityEvent } from '@/lib/audit';
 import { isRateLimited } from '@/lib/rateLimit';
+import { isIpBanned, recordUserIp } from '@/lib/ipban';
+import { withErrorHandling } from '@/lib/api-error';
 
 export const runtime = 'nodejs';
 
@@ -20,8 +22,14 @@ const LOCK_MINUTES = 15;
 // found" path so login timing doesn't reveal whether a username exists.
 const DUMMY_HASH = '$2a$12$CwTycUXWue0Thq9StjUM0uJ8gPpqoxbQ8gwzxV6cX7NGmz1Rp8YQm';
 
-export async function POST(req: Request) {
+async function POSTHandler(req: Request) {
+  const ip = getRequestIp(req);
   const ipHash = getRequestIpHash(req);
+
+  if (await isIpBanned(ip)) {
+    return NextResponse.json({ error: 'This account is not available.' }, { status: 403 });
+  }
+
   if (await isRateLimited(`login:${ipHash}`, 10, 900)) {
     return NextResponse.json({ error: 'Too many attempts. Please wait a few minutes and try again.' }, { status: 429 });
   }
@@ -101,6 +109,8 @@ export async function POST(req: Request) {
     await query(`UPDATE users SET failed_logins = 0, locked_until = NULL WHERE id = $1`, [user.id]);
   }
 
+  await recordUserIp(user.id, ip);
+
   const token = await createSession(user.id, req.headers.get('user-agent') || '', ipHash);
 
   const res = NextResponse.json({ ok: true, role: user.role });
@@ -113,3 +123,6 @@ export async function POST(req: Request) {
   });
   return res;
 }
+
+export const POST = withErrorHandling(POSTHandler);
+
