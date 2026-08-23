@@ -18,20 +18,6 @@ function buildLoaderLua(siteUrl: string): string {
   return `
 local HttpService = game:GetService("HttpService")
 
-local function getKey()
-  local gg = getgenv
-  local genvKey = gg and gg().script_key
-  local globalKey = _G.script_key
-  local genvOldKey = gg and gg().Key
-  local globalOldKey = _G.Key
-
-  local resolved = genvKey or globalKey or genvOldKey or globalOldKey
-  if resolved ~= nil and type(resolved) ~= "string" then
-    resolved = tostring(resolved)
-  end
-  return resolved
-end
-
 local function getHWID()
   if gethwid then
     local ok, id = pcall(gethwid)
@@ -345,32 +331,28 @@ local function buildKeyGui(onCheckKey, onGetKey)
   }
 end
 
-local Key = getKey()
-
-if type(Key) == "string" and Key ~= "" then
-  local success, reason = attemptRun(Key)
-  if not success then
-    warn("[Emblem] " .. tostring(reason))
-  end
-else
-  local gui
-  gui = buildKeyGui(
-    function(enteredKey, callback)
-      local success, reason = attemptRun(enteredKey)
-      if success then
-        callback(true, "Key verified! Loading…")
-        gui.destroy()
-      else
-        callback(false, tostring(reason))
-      end
-    end,
-    function()
-      if setclipboard then
-        pcall(setclipboard, "${siteUrl}/pricing")
-      end
+-- Always show the key-entry UI rather than trying to auto-detect a
+-- pre-set script_key global. Bare global assignment (script_key = "...")
+-- has proven unreliable across executors — this removes that whole class
+-- of failure by never depending on it in the first place. Users just run
+-- the loadstring with no setup step; the box handles everything.
+local gui
+gui = buildKeyGui(
+  function(enteredKey, callback)
+    local success, reason = attemptRun(enteredKey)
+    if success then
+      callback(true, "Key verified! Loading…")
+      gui.destroy()
+    else
+      callback(false, tostring(reason))
     end
-  )
-end
+  end,
+  function()
+    if setclipboard then
+      pcall(setclipboard, "${siteUrl}/pricing")
+    end
+  end
+)
 `.trim();
 }
 
