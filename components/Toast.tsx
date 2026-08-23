@@ -23,7 +23,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
         {toasts.map((t) => (
           <div
             key={t.id}
-            className={`rounded-lg border px-4 py-3 text-sm font-medium shadow-lg backdrop-blur ${
+            className={`animate-fade-up rounded-lg border px-4 py-3 text-sm font-medium shadow-lg backdrop-blur ${
               t.kind === 'success'
                 ? 'border-emerald-500/30 bg-emerald-950/80 text-emerald-300'
                 : t.kind === 'error'

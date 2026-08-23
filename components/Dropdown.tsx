@@ -54,25 +54,27 @@ export function Dropdown({
         </svg>
       </button>
 
-      {open && (
-        <div className="absolute z-50 mt-1.5 w-full overflow-hidden rounded-lg border border-white/10 bg-[#101114] shadow-xl">
-          {options.map((o) => (
-            <button
-              key={o.value}
-              type="button"
-              onClick={() => {
-                onChange(o.value);
-                setOpen(false);
-              }}
-              className={`block w-full px-3.5 py-2.5 text-left text-sm transition ${
-                o.value === value ? 'bg-white/[0.06] text-ink' : 'text-neutral-300 hover:bg-white/[0.05]'
-              }`}
-            >
-              {o.label}
-            </button>
-          ))}
-        </div>
-      )}
+      <div
+        className={`absolute z-50 mt-1.5 w-full origin-top overflow-hidden rounded-lg border border-white/10 bg-[#101114] shadow-xl transition-all duration-150 ease-out ${
+          open ? 'scale-100 opacity-100' : 'pointer-events-none scale-95 opacity-0'
+        }`}
+      >
+        {options.map((o) => (
+          <button
+            key={o.value}
+            type="button"
+            onClick={() => {
+              onChange(o.value);
+              setOpen(false);
+            }}
+            className={`block w-full px-3.5 py-2.5 text-left text-sm transition ${
+              o.value === value ? 'bg-white/[0.06] text-ink' : 'text-neutral-300 hover:bg-white/[0.05]'
+            }`}
+          >
+            {o.label}
+          </button>
+        ))}
+      </div>
     </div>
   );
 }

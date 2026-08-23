@@ -56,9 +56,9 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
     <ConfirmContext.Provider value={{ confirm, promptText }}>
       {children}
       {state && (
-        <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={() => respond(false)}>
+        <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/60 backdrop-blur-sm animate-fade-in" onClick={() => respond(false)}>
           <div
-            className="mx-4 w-full max-w-sm rounded-2xl border border-white/10 bg-[#0e0f12] p-6 shadow-2xl"
+            className="mx-4 w-full max-w-sm origin-center animate-scale-in rounded-2xl border border-white/10 bg-[#0e0f12] p-6 shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             {state.options.title && <h3 className="font-bold text-ink">{state.options.title}</h3>}

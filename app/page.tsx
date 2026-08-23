@@ -60,7 +60,7 @@ export default async function LandingPage() {
             className="animate-fade-up opacity-0 mx-auto mt-5 max-w-md text-lg text-neutral-400"
             style={{ animationDelay: '160ms' }}
           >
-            A script authentication platform for Roblox. Real keys, real device binding, real protection.
+            A premium Roblox script with real key-based authentication, device binding, and real protection.
           </p>
 
           <div

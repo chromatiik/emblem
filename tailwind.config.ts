@@ -27,6 +27,10 @@ const config: Config = {
           from: { opacity: '0' },
           to: { opacity: '1' },
         },
+        'scale-in': {
+          from: { opacity: '0', transform: 'scale(0.95)' },
+          to: { opacity: '1', transform: 'scale(1)' },
+        },
         marquee: {
           from: { transform: 'translateX(0)' },
           to: { transform: 'translateX(-50%)' },
@@ -43,6 +47,7 @@ const config: Config = {
       animation: {
         'fade-up': 'fade-up 0.7s cubic-bezier(0.16,1,0.3,1) forwards',
         'fade-in': 'fade-in 0.6s ease forwards',
+        'scale-in': 'scale-in 0.18s cubic-bezier(0.16,1,0.3,1) forwards',
         marquee: 'marquee 22s linear infinite',
         'grid-pan': 'grid-pan 26s linear infinite',
         'sheen-sweep': 'sheen-sweep 10s ease-in-out infinite',

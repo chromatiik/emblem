@@ -23,8 +23,9 @@ export default function TermsPage() {
 
           <Section title="2. What Emblem is">
             <p>
-              Emblem provides authenticated delivery of Roblox Lua scripts through a key-based system. We are not a
-              Roblox executor, and we are not affiliated with, endorsed by, or sponsored by Roblox Corporation.
+              Emblem is a Roblox Lua script, delivered through an authenticated key-based system. It is a single
+              product, not a platform hosting scripts from multiple sellers. We are not a Roblox executor, and we
+              are not affiliated with, endorsed by, or sponsored by Roblox Corporation.
             </p>
           </Section>
 

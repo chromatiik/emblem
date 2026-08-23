@@ -47,6 +47,7 @@ async function GETHandler(req: Request) {
 }
 
 const createSchema = z.object({
+  userId: z.string().uuid().optional(),
   userEmail: z.string().email().optional(),
   durationDays: z.number().int().positive().optional(), // omit for lifetime
   note: z.string().max(300).optional(),
@@ -66,7 +67,14 @@ async function POSTHandler(req: Request) {
   }
 
   let userId: string | null = null;
-  if (body.userEmail) {
+  if (body.userId) {
+    // Direct lookup — this is what the username/email search autocomplete
+    // sends once a suggestion is picked, so it's exact rather than a
+    // string match that could hit the wrong account.
+    const user = await queryOne<{ id: string }>(`SELECT id FROM users WHERE id = $1`, [body.userId]);
+    if (!user) return NextResponse.json({ error: 'That account no longer exists.' }, { status: 404 });
+    userId = user.id;
+  } else if (body.userEmail) {
     const user = await queryOne<{ id: string }>(`SELECT id FROM users WHERE email = $1`, [body.userEmail.toLowerCase()]);
     if (!user) return NextResponse.json({ error: 'No account with that email.' }, { status: 404 });
     userId = user.id;

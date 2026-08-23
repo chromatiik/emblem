@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useToast } from '@/components/Toast';
 import { CopyButton } from '@/components/CopyButton';
 import { useConfirm } from '@/components/ConfirmDialog';
+import { UserSearchInput } from '@/components/UserSearchInput';
 
 type KeyRow = {
   id: string;
@@ -24,6 +25,7 @@ export default function AdminKeysPage() {
   const confirm = useConfirm();
   const [keys, setKeys] = useState<KeyRow[] | null>(null);
   const [email, setEmail] = useState('');
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [days, setDays] = useState('');
   const [generating, setGenerating] = useState(false);
   const [newKey, setNewKey] = useState<string | null>(null);
@@ -46,7 +48,8 @@ export default function AdminKeysPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          userEmail: email || undefined,
+          userId: selectedUserId || undefined,
+          userEmail: !selectedUserId && email ? email : undefined,
           durationDays: days ? parseInt(days, 10) : undefined,
         }),
       });
@@ -57,6 +60,7 @@ export default function AdminKeysPage() {
       }
       setNewKey(data.plaintextKey);
       setEmail('');
+      setSelectedUserId(null);
       setDays('');
       load();
     } finally {
@@ -99,13 +103,21 @@ export default function AdminKeysPage() {
         <h2 className="font-bold text-ink">Generate a key</h2>
         <form onSubmit={generate} className="mt-3 flex flex-wrap items-end gap-3">
           <label className="text-xs font-semibold text-neutral-400">
-            Owner email (optional)
-            <input
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="buyer@example.com"
-              className="mt-1 block w-56 rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2 text-sm text-ink outline-none focus:border-ink/30"
-            />
+            Owner (optional) — username or email
+            <div className="mt-1 w-64">
+              <UserSearchInput
+                value={email}
+                onChange={(v) => {
+                  setEmail(v);
+                  setSelectedUserId(null);
+                }}
+                onSelect={(u) => {
+                  setEmail(u.username);
+                  setSelectedUserId(u.id);
+                }}
+                placeholder="buyer@example.com or username"
+              />
+            </div>
           </label>
           <label className="text-xs font-semibold text-neutral-400">
             Duration in days (blank = lifetime)
