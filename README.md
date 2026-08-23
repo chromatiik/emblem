@@ -1,6 +1,8 @@
 # Emblem
 
 > **⚠️ Every time you pull updated code, run `npm run migrate` before starting the dev server.** Code changes and database changes ship together in `db/schema.sql`, but only the code half applies automatically — the database half only updates when you run the migration. Skipping this shows up as confusing raw Postgres errors (`column does not exist`, `value too long for type character varying`) that look like bugs but are actually just an out-of-date database. As of this version, these specific errors are auto-translated into a clear "run npm run migrate" message instead of the raw driver error — but running migrate proactively after every update avoids hitting them at all.
+>
+> **This update specifically fixes a severe one**: `rate_limit_hits.bucket` was `VARCHAR(60)`, but every actual bucket string used in the app (login, register, checkout, and all three loader endpoints) is 70–82 characters. This meant rate limiting has been silently failing on every single one of those endpoints — not a cosmetic bug, a real one, and likely the cause of "the key works but the in-game menu shows anyway" if you saw that: the auth request was failing at the rate-limit check, before your key was ever even looked at. Run `npm run migrate` to pick up the fix.
 
 A premium Roblox script/key platform: real key-based loader authentication (not a static file behind a header check), HWID binding, Stripe payments, and a full admin dashboard with RBAC and audit logging.
 

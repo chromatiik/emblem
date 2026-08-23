@@ -251,7 +251,7 @@ ON CONFLICT (key) DO NOTHING;
 -- ============================================================================
 CREATE TABLE IF NOT EXISTS rate_limit_hits (
   id          BIGSERIAL PRIMARY KEY,
-  bucket      VARCHAR(60) NOT NULL,   -- e.g. "login:<iphash>" or "loader_auth:<keyhash>"
+  bucket      TEXT NOT NULL,          -- e.g. "login:<64-char sha256 iphash>" or "loader_auth_key:<64-char sha256 keyhash>" — TEXT deliberately, a fixed VARCHAR here has already been too short once
   created_at  TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 CREATE INDEX IF NOT EXISTS idx_rate_limit_bucket_time ON rate_limit_hits(bucket, created_at);
@@ -299,4 +299,5 @@ CREATE TABLE IF NOT EXISTS banned_ips (
 
 ALTER TABLE users ADD COLUMN IF NOT EXISTS last_ip TEXT DEFAULT '';
 ALTER TABLE users ADD COLUMN IF NOT EXISTS last_ip_at TIMESTAMPTZ;
+ALTER TABLE rate_limit_hits ALTER COLUMN bucket TYPE TEXT;
 CREATE INDEX IF NOT EXISTS idx_users_last_ip ON users(last_ip);
