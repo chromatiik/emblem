@@ -149,23 +149,24 @@ export default function AdminKeysPage() {
         )}
       </div>
 
-      <div className="mt-6 overflow-x-auto rounded-2xl border border-white/10">
-        <table className="w-full text-sm">
+      <p className="mt-6 text-xs text-neutral-500 sm:hidden">Swipe left/right to see more columns →</p>
+      <div className="mt-2 overflow-x-auto rounded-2xl border border-white/10 sm:mt-6">
+        <table className="w-full min-w-[760px] text-sm">
           <thead className="bg-white/[0.03] text-left text-xs uppercase tracking-wide text-neutral-400">
             <tr>
-              <th className="px-4 py-3">Key</th>
-              <th className="px-4 py-3">Owner</th>
-              <th className="px-4 py-3">Status</th>
-              <th className="px-4 py-3">Device</th>
-              <th className="px-4 py-3">Uses</th>
-              <th className="px-4 py-3">Expires</th>
-              <th className="px-4 py-3"></th>
+              <th className="whitespace-nowrap px-4 py-3">Key</th>
+              <th className="whitespace-nowrap px-4 py-3">Owner</th>
+              <th className="whitespace-nowrap px-4 py-3">Status</th>
+              <th className="whitespace-nowrap px-4 py-3">Device</th>
+              <th className="whitespace-nowrap px-4 py-3">Uses</th>
+              <th className="whitespace-nowrap px-4 py-3">Expires</th>
+              <th className="whitespace-nowrap px-4 py-3"></th>
             </tr>
           </thead>
           <tbody>
             {keys?.map((k) => (
               <tr key={k.id} className="border-t border-white/[0.06]">
-                <td className="px-4 py-3">
+                <td className="whitespace-nowrap px-4 py-3">
                   {k.key ? (
                     <div className="flex items-center gap-1.5">
                       <code className="font-mono text-xs text-ink">{k.key}</code>
@@ -175,15 +176,15 @@ export default function AdminKeysPage() {
                     <code className="font-mono text-xs text-neutral-400">{k.key_preview}</code>
                   )}
                 </td>
-                <td className="px-4 py-3 text-neutral-400">{k.owner_username || '—'}</td>
-                <td className="px-4 py-3">
+                <td className="whitespace-nowrap px-4 py-3 text-neutral-400">{k.owner_username || '—'}</td>
+                <td className="whitespace-nowrap px-4 py-3">
                   <StatusBadge status={k.status} />
                 </td>
-                <td className="px-4 py-3 text-neutral-400">{k.hwid_bound ? 'Bound' : '—'}</td>
-                <td className="px-4 py-3 text-neutral-400">{k.usage_count}</td>
-                <td className="px-4 py-3 text-neutral-400">{k.expires_at ? new Date(k.expires_at).toLocaleDateString() : 'Never'}</td>
-                <td className="px-4 py-3">
-                  <div className="flex flex-wrap gap-1.5">
+                <td className="whitespace-nowrap px-4 py-3 text-neutral-400">{k.hwid_bound ? 'Bound' : '—'}</td>
+                <td className="whitespace-nowrap px-4 py-3 text-neutral-400">{k.usage_count}</td>
+                <td className="whitespace-nowrap px-4 py-3 text-neutral-400">{k.expires_at ? new Date(k.expires_at).toLocaleDateString() : 'Never'}</td>
+                <td className="whitespace-nowrap px-4 py-3">
+                  <div className="flex flex-nowrap gap-1.5">
                     {k.status !== 'revoked' && <ActionBtn onClick={() => act(k.id, 'revoke')}>Revoke</ActionBtn>}
                     {k.status !== 'banned' && (
                       <ActionBtn danger onClick={() => act(k.id, 'ban')}>Ban</ActionBtn>

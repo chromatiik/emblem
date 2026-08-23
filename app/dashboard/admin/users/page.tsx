@@ -76,25 +76,26 @@ export default function AdminUsersPage() {
         />
       </form>
 
-      <div className="mt-6 overflow-x-auto rounded-2xl border border-white/10">
-        <table className="w-full text-sm">
+      <p className="mt-6 text-xs text-neutral-500 sm:hidden">Swipe left/right to see more columns →</p>
+      <div className="mt-2 overflow-x-auto rounded-2xl border border-white/10 sm:mt-6">
+        <table className="w-full min-w-[820px] text-sm">
           <thead className="bg-white/[0.03] text-left text-xs uppercase tracking-wide text-neutral-400">
             <tr>
-              <th className="px-4 py-3">Username</th>
-              <th className="px-4 py-3">Email</th>
-              <th className="px-4 py-3">IP</th>
-              <th className="px-4 py-3">Role</th>
-              <th className="px-4 py-3">Status</th>
-              <th className="px-4 py-3">Keys</th>
-              <th className="px-4 py-3"></th>
+              <th className="whitespace-nowrap px-4 py-3">Username</th>
+              <th className="whitespace-nowrap px-4 py-3">Email</th>
+              <th className="whitespace-nowrap px-4 py-3">IP</th>
+              <th className="whitespace-nowrap px-4 py-3">Role</th>
+              <th className="whitespace-nowrap px-4 py-3">Status</th>
+              <th className="whitespace-nowrap px-4 py-3">Keys</th>
+              <th className="whitespace-nowrap px-4 py-3"></th>
             </tr>
           </thead>
           <tbody>
             {users?.map((u) => (
               <tr key={u.id} className="border-t border-white/[0.06]">
-                <td className="px-4 py-3 font-semibold text-ink">{u.username}</td>
-                <td className="px-4 py-3 text-neutral-400">{u.email}</td>
-                <td className="px-4 py-3">
+                <td className="whitespace-nowrap px-4 py-3 font-semibold text-ink">{u.username}</td>
+                <td className="whitespace-nowrap px-4 py-3 text-neutral-400">{u.email}</td>
+                <td className="whitespace-nowrap px-4 py-3">
                   {u.last_ip ? (
                     <div className="flex items-center gap-1.5">
                       <span className="font-mono text-xs text-neutral-300">{u.last_ip}</span>
@@ -108,21 +109,21 @@ export default function AdminUsersPage() {
                     <span className="text-xs text-neutral-500">—</span>
                   )}
                 </td>
-                <td className="px-4 py-3">
+                <td className="whitespace-nowrap px-4 py-3">
                   {u.role !== 'user' && (
                     <span className="rounded-full border border-white/15 bg-white/[0.04] px-2 py-0.5 text-[10px] font-bold uppercase text-ink">
                       {u.role}
                     </span>
                   )}
                 </td>
-                <td className="px-4 py-3">
+                <td className="whitespace-nowrap px-4 py-3">
                   {u.is_banned && <span className="text-red-400">Banned</span>}
                   {u.is_disabled && !u.is_banned && <span className="text-amber-400">Disabled</span>}
                   {!u.is_banned && !u.is_disabled && <span className="text-emerald-400">Active</span>}
                 </td>
-                <td className="px-4 py-3 text-neutral-400">{u.key_count}</td>
-                <td className="px-4 py-3">
-                  <div className="flex flex-wrap gap-1.5">
+                <td className="whitespace-nowrap px-4 py-3 text-neutral-400">{u.key_count}</td>
+                <td className="whitespace-nowrap px-4 py-3">
+                  <div className="flex flex-nowrap gap-1.5">
                     {u.role === 'user' && (
                       <ActionBtn onClick={() => act(u.id, 'promote')}>Promote</ActionBtn>
                     )}
