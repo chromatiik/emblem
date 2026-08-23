@@ -31,7 +31,7 @@ export default async function LandingPage() {
   );
 
   const loadstring = `loadstring(game:HttpGet("${process.env.SITE_URL || 'https://emblem.gg'}/script/loader/emblem.lua"))()`;
-  const exampleSnippet = `script_key = "EMBLEM-F5ME-J68D"\n${loadstring}`;
+  const exampleSnippet = `getgenv().script_key = "EMBLEM-F5ME-J68D"\n${loadstring}`;
 
   return (
     <>

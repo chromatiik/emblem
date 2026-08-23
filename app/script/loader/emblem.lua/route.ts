@@ -146,8 +146,8 @@ local function buildKeyGui(onCheckKey, onGetKey)
 
   local box = Instance.new("Frame")
   box.Name = "Box"
-  box.Size = UDim2.new(0, 320, 0, 210)
-  box.Position = UDim2.new(0.5, -160, 0.5, -105)
+  box.Size = UDim2.new(0, 340, 0, 250)
+  box.Position = UDim2.new(0.5, -170, 0.5, -125)
   box.BackgroundColor3 = Color3.fromRGB(14, 14, 16)
   box.BorderSizePixel = 0
   box.Parent = screenGui
@@ -199,9 +199,9 @@ local function buildKeyGui(onCheckKey, onGetKey)
   local status = Instance.new("TextLabel")
   status.BackgroundTransparency = 1
   status.Position = UDim2.new(0, 20, 0, 44)
-  status.Size = UDim2.new(1, -40, 0, 34)
+  status.Size = UDim2.new(1, -40, 0, 64)
   status.Font = Enum.Font.Gotham
-  status.TextSize = 13
+  status.TextSize = 12
   status.TextColor3 = Color3.fromRGB(150, 150, 154)
   status.TextXAlignment = Enum.TextXAlignment.Left
   status.TextYAlignment = Enum.TextYAlignment.Top
@@ -212,7 +212,7 @@ local function buildKeyGui(onCheckKey, onGetKey)
   local inputHolder = Instance.new("Frame")
   inputHolder.BackgroundColor3 = Color3.fromRGB(22, 22, 24)
   inputHolder.BorderSizePixel = 0
-  inputHolder.Position = UDim2.new(0, 20, 0, 86)
+  inputHolder.Position = UDim2.new(0, 20, 0, 118)
   inputHolder.Size = UDim2.new(1, -40, 0, 34)
   inputHolder.Parent = box
 
@@ -243,7 +243,7 @@ local function buildKeyGui(onCheckKey, onGetKey)
   getKeyBtn.AutoButtonColor = false
   getKeyBtn.BackgroundColor3 = Color3.fromRGB(22, 22, 24)
   getKeyBtn.BorderSizePixel = 0
-  getKeyBtn.Position = UDim2.new(0, 20, 0, 132)
+  getKeyBtn.Position = UDim2.new(0, 20, 0, 164)
   getKeyBtn.Size = UDim2.new(0, 138, 0, 34)
   getKeyBtn.Font = Enum.Font.GothamBold
   getKeyBtn.TextSize = 13
@@ -259,7 +259,7 @@ local function buildKeyGui(onCheckKey, onGetKey)
   checkKeyBtn.AutoButtonColor = false
   checkKeyBtn.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
   checkKeyBtn.BorderSizePixel = 0
-  checkKeyBtn.Position = UDim2.new(0, 162, 0, 132)
+  checkKeyBtn.Position = UDim2.new(0, 162, 0, 164)
   checkKeyBtn.Size = UDim2.new(1, -182, 0, 34)
   checkKeyBtn.Font = Enum.Font.GothamBold
   checkKeyBtn.TextSize = 13
