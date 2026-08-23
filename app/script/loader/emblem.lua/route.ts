@@ -137,6 +137,10 @@ local function attemptRun(key)
   -- executor — if the payload's own call ever diverges even slightly, its
   -- self-verification would fail with a key that just worked seconds
   -- earlier. Sharing the value removes that entire failure class.
+  -- Same reasoning as the HWID share below: don't make the payload trust
+  -- its own independent _G/getgenv() read of the key either. Hand it the
+  -- exact value this handshake just succeeded with.
+  if getgenv then getgenv().__emblem_key = key else _G.__emblem_key = key end
   if getgenv then getgenv().__emblem_hwid = HWID else _G.__emblem_hwid = HWID end
 
   fn()
