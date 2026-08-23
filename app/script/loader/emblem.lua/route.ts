@@ -130,6 +130,15 @@ local function attemptRun(key)
     return false, "Failed to load script: " .. tostring(err)
   end
 
+  -- Hand the payload the exact HWID this handshake just succeeded with,
+  -- rather than letting it compute its own independently. Two separate
+  -- getHWID() calls (loader's and payload's, in two separate loadstring'd
+  -- chunks) are not guaranteed to produce identical values on every
+  -- executor — if the payload's own call ever diverges even slightly, its
+  -- self-verification would fail with a key that just worked seconds
+  -- earlier. Sharing the value removes that entire failure class.
+  if getgenv then getgenv().__emblem_hwid = HWID else _G.__emblem_hwid = HWID end
+
   fn()
   return true, nil
 end
