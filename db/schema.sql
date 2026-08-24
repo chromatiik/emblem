@@ -301,3 +301,23 @@ ALTER TABLE users ADD COLUMN IF NOT EXISTS last_ip TEXT DEFAULT '';
 ALTER TABLE users ADD COLUMN IF NOT EXISTS last_ip_at TIMESTAMPTZ;
 ALTER TABLE rate_limit_hits ALTER COLUMN bucket TYPE TEXT;
 CREATE INDEX IF NOT EXISTS idx_users_last_ip ON users(last_ip);
+
+-- ============================================================================
+-- site_visitors — one row per unique IP that has loaded the website (not
+-- one row per page view, which would flood this table). Logged from the
+-- root layout on every page load, so it covers anonymous visitors too, not
+-- just people who've logged in or run the script. Lets an admin see and
+-- ban an IP before it's ever tied to an account.
+-- ============================================================================
+CREATE TABLE IF NOT EXISTS site_visitors (
+  id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  ip           TEXT NOT NULL UNIQUE,
+  user_id      UUID REFERENCES users(id) ON DELETE SET NULL,
+  last_username TEXT DEFAULT '',
+  visit_count  INTEGER NOT NULL DEFAULT 1,
+  last_path    TEXT DEFAULT '',
+  user_agent   TEXT DEFAULT '',
+  first_seen   TIMESTAMPTZ NOT NULL DEFAULT now(),
+  last_seen    TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS idx_site_visitors_last_seen ON site_visitors(last_seen DESC);

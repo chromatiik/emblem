@@ -11,6 +11,7 @@ const LINK_GROUPS: { label: string; links: { href: string; label: string; exact?
     label: 'Customers',
     links: [
       { href: '/dashboard/admin/users', label: 'Users' },
+      { href: '/dashboard/admin/visitors', label: 'Visitors' },
       { href: '/dashboard/admin/keys', label: 'Keys' },
       { href: '/dashboard/admin/plans', label: 'Plans' },
     ],

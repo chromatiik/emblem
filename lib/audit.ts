@@ -44,6 +44,16 @@ function extractIp(req: Request): string {
   return xff ? xff.split(',')[0]!.trim() : req.headers.get('x-real-ip') || '0.0.0.0';
 }
 
+/**
+ * Same extraction as extractIp(), but for Server Components (layout.tsx,
+ * page.tsx) which get a ReadonlyHeaders from next/headers() rather than a
+ * Request object. Used by the root layout's visit logging / ban check.
+ */
+export function getIpFromHeaders(headers: { get(name: string): string | null }): string {
+  const xff = headers.get('x-forwarded-for');
+  return xff ? xff.split(',')[0]!.trim() : headers.get('x-real-ip') || '0.0.0.0';
+}
+
 /** Extracts a best-effort client IP from a Next.js Request and returns its hash (never the raw IP). Used for rate-limit buckets and general audit logs where we deliberately don't want raw IPs at rest. */
 export function getRequestIpHash(req: Request): string {
   return hashIp(extractIp(req));
