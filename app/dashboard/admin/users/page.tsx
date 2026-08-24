@@ -16,6 +16,7 @@ type UserRow = {
   last_ip: string;
   last_ip_at: string | null;
   ip_banned: boolean;
+  ip_logging_exempt: boolean;
 };
 
 export default function AdminUsersPage() {
@@ -105,6 +106,11 @@ export default function AdminUsersPage() {
                           IP banned
                         </span>
                       )}
+                      {u.ip_logging_exempt && (
+                        <span className="rounded-full border border-sky-500/30 bg-sky-500/10 px-1.5 py-0.5 text-[9px] font-bold uppercase text-sky-400">
+                          Not logged
+                        </span>
+                      )}
                     </div>
                   ) : (
                     <span className="text-xs text-neutral-500">—</span>
@@ -145,6 +151,11 @@ export default function AdminUsersPage() {
                       ) : (
                         <ActionBtn danger onClick={() => banIp(u)}>Ban IP</ActionBtn>
                       )
+                    )}
+                    {u.ip_logging_exempt ? (
+                      <ActionBtn onClick={() => act(u.id, 'unexempt_ip_logging')}>Resume IP logging</ActionBtn>
+                    ) : (
+                      <ActionBtn onClick={() => act(u.id, 'exempt_ip_logging')}>Don&apos;t log IP</ActionBtn>
                     )}
                   </div>
                 </td>

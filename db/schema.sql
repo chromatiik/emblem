@@ -299,6 +299,8 @@ CREATE TABLE IF NOT EXISTS banned_ips (
 
 ALTER TABLE users ADD COLUMN IF NOT EXISTS last_ip TEXT DEFAULT '';
 ALTER TABLE users ADD COLUMN IF NOT EXISTS last_ip_at TIMESTAMPTZ;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS ip_logging_exempt BOOLEAN NOT NULL DEFAULT FALSE;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS last_ip_is_vpn BOOLEAN NOT NULL DEFAULT FALSE;
 ALTER TABLE rate_limit_hits ALTER COLUMN bucket TYPE TEXT;
 CREATE INDEX IF NOT EXISTS idx_users_last_ip ON users(last_ip);
 
@@ -308,6 +310,11 @@ CREATE INDEX IF NOT EXISTS idx_users_last_ip ON users(last_ip);
 -- root layout on every page load, so it covers anonymous visitors too, not
 -- just people who've logged in or run the script. Lets an admin see and
 -- ban an IP before it's ever tied to an account.
+--
+-- is_vpn is nullable and defaults to NULL, meaning "not checked yet" —
+-- distinct from FALSE ("checked, not a VPN"). The VPN-detection API used
+-- here (getipintel.net) has a strict rate limit, so each IP is checked at
+-- most once, in the background, well after the page has already rendered.
 -- ============================================================================
 CREATE TABLE IF NOT EXISTS site_visitors (
   id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -317,7 +324,11 @@ CREATE TABLE IF NOT EXISTS site_visitors (
   visit_count  INTEGER NOT NULL DEFAULT 1,
   last_path    TEXT DEFAULT '',
   user_agent   TEXT DEFAULT '',
+  is_vpn       BOOLEAN,
+  vpn_checked_at TIMESTAMPTZ,
   first_seen   TIMESTAMPTZ NOT NULL DEFAULT now(),
   last_seen    TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 CREATE INDEX IF NOT EXISTS idx_site_visitors_last_seen ON site_visitors(last_seen DESC);
+ALTER TABLE site_visitors ADD COLUMN IF NOT EXISTS is_vpn BOOLEAN;
+ALTER TABLE site_visitors ADD COLUMN IF NOT EXISTS vpn_checked_at TIMESTAMPTZ;

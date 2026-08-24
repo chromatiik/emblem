@@ -25,6 +25,7 @@ async function GETHandler(req: Request) {
   const { rows } = await query(
     `SELECT site_visitors.id, site_visitors.ip, site_visitors.user_id, site_visitors.last_username,
             site_visitors.visit_count, site_visitors.last_path, site_visitors.first_seen, site_visitors.last_seen,
+            site_visitors.is_vpn,
             (banned_ips.ip IS NOT NULL) AS ip_banned
      FROM site_visitors
      LEFT JOIN banned_ips ON banned_ips.ip = site_visitors.ip

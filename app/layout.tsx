@@ -72,13 +72,15 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     );
   }
 
-  logVisit({
-    ip,
-    userId: user?.id ?? null,
-    username: user?.username ?? null,
-    path: headersList.get('referer') ?? '',
-    userAgent: headersList.get('user-agent') ?? '',
-  }).catch(() => {});
+  if (!user?.ip_logging_exempt) {
+    logVisit({
+      ip,
+      userId: user?.id ?? null,
+      username: user?.username ?? null,
+      path: headersList.get('referer') ?? '',
+      userAgent: headersList.get('user-agent') ?? '',
+    }).catch(() => {});
+  }
 
   return (
     <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable}`}>

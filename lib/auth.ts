@@ -31,6 +31,7 @@ export interface SessionUser {
   is_disabled: boolean;
   is_banned: boolean;
   totp_enabled: boolean;
+  ip_logging_exempt: boolean;
   created_at: string;
 }
 
@@ -61,7 +62,7 @@ export async function getUserFromSessionToken(token: string | undefined): Promis
 
   const row = await queryOne<SessionUser & { session_expires: string; session_revoked: string | null }>(
     `SELECT users.id, users.username, users.email, users.role, users.is_disabled, users.is_banned,
-            users.totp_enabled, users.created_at,
+            users.totp_enabled, users.ip_logging_exempt, users.created_at,
             sessions.expires_at AS session_expires, sessions.revoked_at AS session_revoked
      FROM sessions
      JOIN users ON users.id = sessions.user_id

@@ -14,6 +14,7 @@ type VisitorRow = {
   first_seen: string;
   last_seen: string;
   ip_banned: boolean;
+  is_vpn: boolean | null;
 };
 
 export default function AdminVisitorsPage() {
@@ -125,6 +126,11 @@ export default function AdminVisitorsPage() {
                 <td className="whitespace-nowrap px-4 py-3">
                   <div className="flex items-center gap-1.5">
                     <code className="font-mono text-xs text-ink">{v.ip}</code>
+                    {v.is_vpn && (
+                      <span className="rounded-full border border-violet-500/30 bg-violet-500/10 px-1.5 py-0.5 text-[9px] font-bold uppercase text-violet-400">
+                        VPN
+                      </span>
+                    )}
                     {v.ip_banned && (
                       <span className="rounded-full border border-red-500/30 bg-red-500/10 px-1.5 py-0.5 text-[9px] font-bold uppercase text-red-400">
                         Banned
