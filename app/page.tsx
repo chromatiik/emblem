@@ -185,61 +185,88 @@ export default async function LandingPage() {
         </section>
 
         {/* Features */}
-        <section className="mx-auto max-w-5xl px-6 py-24">
-          <p className="text-center font-mono text-xs font-medium uppercase tracking-[0.2em] text-neutral-500">Why Emblem</p>
-          <h2 className="mt-3 text-center text-3xl font-bold text-ink">Built to win</h2>
-          <div className="mt-14 divide-y divide-white/[0.08] overflow-hidden rounded-2xl border border-white/10 bg-white/[0.02]">
-            {FEATURES.map((f) => (
-              <div key={f.title} className="flex items-start gap-4 p-6 transition hover:bg-white/[0.02] sm:items-center">
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-white/[0.04] text-neutral-300">
-                  <f.icon className="h-4 w-4" />
-                </div>
-                <div>
-                  <h3 className="font-bold text-ink">{f.title}</h3>
-                  <p className="mt-1 text-sm text-neutral-400">{f.desc}</p>
-                </div>
+        <section className="mx-auto max-w-6xl px-6 py-24">
+          <div className="grid gap-10 lg:grid-cols-12 lg:gap-16">
+            <div className="lg:sticky lg:top-28 lg:col-span-4 lg:h-fit">
+              <p className="font-mono text-xs font-medium uppercase tracking-[0.2em] text-neutral-500">Why Emblem</p>
+              <h2 className="mt-3 text-3xl font-bold text-ink">Built to win</h2>
+              <p className="mt-4 max-w-sm text-sm text-neutral-400">
+                Most script sellers ship a file and a Discord. Emblem ships a real backend — the same handshake your
+                bank's login form would use, adapted for Roblox.
+              </p>
+            </div>
+            <div className="lg:col-span-8">
+              <div className="divide-y divide-white/[0.08] overflow-hidden rounded-2xl border border-white/10 bg-white/[0.02]">
+                {FEATURES.map((f) => (
+                  <div key={f.title} className="flex items-start gap-4 p-6 transition hover:bg-white/[0.02] sm:items-center">
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-white/[0.04] text-neutral-300">
+                      <f.icon className="h-4 w-4" />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-ink">{f.title}</h3>
+                      <p className="mt-1 text-sm text-neutral-400">{f.desc}</p>
+                    </div>
+                  </div>
+                ))}
               </div>
-            ))}
+            </div>
           </div>
         </section>
 
         {plans.length > 0 && (
-          <section className="mx-auto max-w-5xl px-6 py-24">
-            <p className="text-center font-mono text-xs font-medium uppercase tracking-[0.2em] text-neutral-500">Get access</p>
-            <h2 className="mt-3 text-center text-3xl font-bold text-ink">Pricing</h2>
-            <div className="mt-14 grid gap-5 sm:grid-cols-3">
-              {plans.map((p) => (
-                <div key={p.id} className="rounded-2xl border border-white/10 bg-white/[0.045] p-6 text-center shadow-[0_1px_0_rgba(255,255,255,0.06)_inset,0_20px_40px_-24px_rgba(10,10,12,0.25)] backdrop-blur-md transition hover:-translate-y-1 hover:shadow-[0_1px_0_rgba(255,255,255,0.06)_inset,0_28px_50px_-20px_rgba(10,10,12,0.32)]">
-                  <div className="font-bold text-ink">{p.name}</div>
-                  <div className="mt-2 text-3xl font-black text-ink">{formatPrice(p.price_cents, p.currency)}</div>
-                  <div className="mt-1 text-xs text-neutral-400">{p.duration_days ? `${p.duration_days} days` : 'Lifetime'}</div>
+          <section className="mx-auto max-w-6xl px-6 py-24">
+            <div className="grid gap-10 lg:grid-cols-12 lg:gap-16">
+              <div className="lg:sticky lg:top-28 lg:col-span-4 lg:h-fit">
+                <p className="font-mono text-xs font-medium uppercase tracking-[0.2em] text-neutral-500">Get access</p>
+                <h2 className="mt-3 text-3xl font-bold text-ink">Pricing</h2>
+                <p className="mt-4 max-w-sm text-sm text-neutral-400">
+                  One-time payment, no subscription. Every plan includes the same protected delivery — key auth, HWID
+                  binding, replay protection.
+                </p>
+                <Link href="/pricing" className="mt-5 inline-flex items-center gap-1 text-sm font-semibold text-ink underline underline-offset-4 hover:no-underline">
+                  View full pricing <span aria-hidden>→</span>
+                </Link>
+              </div>
+              <div className="lg:col-span-8">
+                <div className="grid gap-5 sm:grid-cols-3">
+                  {plans.map((p) => (
+                    <div key={p.id} className="rounded-2xl border border-white/10 bg-white/[0.045] p-6 shadow-[0_1px_0_rgba(255,255,255,0.06)_inset,0_20px_40px_-24px_rgba(10,10,12,0.25)] backdrop-blur-md transition hover:-translate-y-1 hover:shadow-[0_1px_0_rgba(255,255,255,0.06)_inset,0_28px_50px_-20px_rgba(10,10,12,0.32)]">
+                      <div className="font-bold text-ink">{p.name}</div>
+                      <div className="mt-2 font-mono text-3xl font-bold tracking-tight text-ink">{formatPrice(p.price_cents, p.currency)}</div>
+                      <div className="mt-1 font-mono text-xs uppercase tracking-wide text-neutral-500">{p.duration_days ? `${p.duration_days} days` : 'Lifetime'}</div>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-            <div className="mt-8 text-center">
-              <Link href="/pricing" className="text-sm font-semibold text-ink underline underline-offset-4 hover:no-underline">
-                View full pricing →
-              </Link>
+              </div>
             </div>
           </section>
         )}
 
-        <section className="mx-auto max-w-3xl px-6 py-24">
-          <p className="text-center font-mono text-xs font-medium uppercase tracking-[0.2em] text-neutral-500">Questions</p>
-          <h2 className="mt-3 text-center text-3xl font-bold text-ink">FAQ</h2>
-          <div className="mt-10 space-y-3">
-            {FAQ.map((item) => (
-              <details key={item.q} className="group rounded-xl border border-white/10 bg-white/[0.045] p-5 shadow-[0_1px_0_rgba(255,255,255,0.06)_inset,0_14px_28px_-20px_rgba(10,10,12,0.2)] backdrop-blur-md transition hover:shadow-[0_1px_0_rgba(255,255,255,0.06)_inset,0_18px_32px_-16px_rgba(10,10,12,0.28)]">
-                <summary className="cursor-pointer list-none font-semibold text-ink">{item.q}</summary>
-                <p className="mt-3 text-sm text-neutral-400">{item.a}</p>
-              </details>
-            ))}
+        <section className="mx-auto max-w-6xl px-6 py-24">
+          <div className="grid gap-10 lg:grid-cols-12 lg:gap-16">
+            <div className="lg:sticky lg:top-28 lg:col-span-4 lg:h-fit">
+              <p className="font-mono text-xs font-medium uppercase tracking-[0.2em] text-neutral-500">Questions</p>
+              <h2 className="mt-3 text-3xl font-bold text-ink">FAQ</h2>
+              <p className="mt-4 max-w-sm text-sm text-neutral-400">
+                Can't find what you're looking for? <Link href="/discord" className="text-ink underline underline-offset-4 hover:no-underline">Ask in Discord</Link>.
+              </p>
+            </div>
+            <div className="lg:col-span-8">
+              <div className="space-y-3">
+                {FAQ.map((item) => (
+                  <details key={item.q} className="group rounded-xl border border-white/10 bg-white/[0.045] p-5 shadow-[0_1px_0_rgba(255,255,255,0.06)_inset,0_14px_28px_-20px_rgba(10,10,12,0.2)] backdrop-blur-md transition hover:shadow-[0_1px_0_rgba(255,255,255,0.06)_inset,0_18px_32px_-16px_rgba(10,10,12,0.28)]">
+                    <summary className="cursor-pointer list-none font-semibold text-ink">{item.q}</summary>
+                    <p className="mt-3 text-sm text-neutral-400">{item.a}</p>
+                  </details>
+                ))}
+              </div>
+            </div>
           </div>
         </section>
       </main>
 
       <footer className="relative z-10 border-t border-white/[0.08] py-10">
-        <div className="mx-auto flex max-w-5xl flex-col items-center justify-between gap-4 px-6 text-sm text-neutral-400 sm:flex-row">
+        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-6 text-sm text-neutral-400 sm:flex-row">
           <span>© {new Date().getFullYear()} Emblem</span>
           <div className="flex gap-6">
             <Link href="/pricing" className="hover:text-ink">Pricing</Link>
