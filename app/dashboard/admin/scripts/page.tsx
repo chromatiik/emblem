@@ -92,7 +92,8 @@ export default function AdminScriptsPage() {
   return (
     <div>
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-2xl font-bold text-ink">Script versions</h1>
+        <p className="font-mono text-xs font-medium uppercase tracking-[0.2em] text-neutral-500">Admin</p>
+        <h1 className="mt-2 text-2xl font-bold text-ink">Script versions</h1>
         <button
           onClick={emergencyRevoke}
           className="rounded-lg border border-red-500/30 px-4 py-2 text-xs font-bold text-red-400 hover:bg-red-500/10"
@@ -140,7 +141,7 @@ export default function AdminScriptsPage() {
         <button
           type="submit"
           disabled={uploading}
-          className="rounded-lg bg-ink px-5 py-2.5 text-sm font-bold text-paper transition hover:bg-neutral-800 disabled:opacity-50"
+          className="rounded-lg bg-ink px-5 py-2.5 text-sm font-bold text-paper transition hover:bg-neutral-200 disabled:opacity-50"
         >
           {uploading ? 'Uploading…' : 'Upload'}
         </button>

@@ -54,7 +54,8 @@ export default function SettingsPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-ink">Settings</h1>
+      <p className="font-mono text-xs font-medium uppercase tracking-[0.2em] text-neutral-500">Admin</p>
+      <h1 className="mt-2 text-2xl font-bold text-ink">Settings</h1>
       <p className="mt-1 text-sm text-neutral-400">
         Site-wide configuration. Changes take effect immediately — the landing page and <code>/discord</code> read these
         fresh from the database on every request, no caching involved.

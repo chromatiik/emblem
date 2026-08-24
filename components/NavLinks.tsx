@@ -22,11 +22,11 @@ export function NavLinks({ items, exactPaths = [], size = 'md' }: { items: NavIt
           <Link
             key={item.href}
             href={item.href}
-            className={`rounded-lg font-medium transition ${
-              size === 'sm' ? 'px-3 py-1.5 text-sm' : 'px-3.5 py-2 text-sm'
+            className={`rounded-full font-medium transition ${
+              size === 'sm' ? 'px-3.5 py-1.5 text-sm' : 'px-3.5 py-2 text-sm'
             } ${
               isActive
-                ? 'bg-white/[0.07] text-ink shadow-[0_0_0_1px_rgba(255,255,255,0.12),0_0_16px_rgba(255,255,255,0.18)]'
+                ? 'bg-white/[0.09] text-ink'
                 : 'text-neutral-400 hover:bg-white/[0.04] hover:text-ink'
             }`}
           >

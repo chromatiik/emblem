@@ -47,38 +47,40 @@ export default function RegisterPage() {
           emblem
         </Link>
 
-        <h1 className="text-2xl font-bold text-ink">Create your account</h1>
-        <p className="mt-1 text-sm text-neutral-400">Manage keys and purchases from one place.</p>
+        <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-7 shadow-2xl backdrop-blur">
+          <h1 className="text-2xl font-bold text-ink">Create your account</h1>
+          <p className="mt-1 text-sm text-neutral-400">Manage keys and purchases from one place.</p>
 
-        {error && (
-          <div className="mt-6 rounded-lg border border-red-500/30 bg-red-950/50 px-4 py-3 text-sm text-red-300">{error}</div>
-        )}
+          {error && (
+            <div className="mt-6 rounded-lg border border-red-500/30 bg-red-950/50 px-4 py-3 text-sm text-red-300">{error}</div>
+          )}
 
-        <form onSubmit={onSubmit} className="mt-6 space-y-4">
-          <Field label="Username" hint="3-20 characters: letters, numbers, underscores.">
-            <input value={username} onChange={(e) => setUsername(e.target.value)} required className={inputClass} />
-          </Field>
-          <Field label="Email">
-            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required className={inputClass} />
-          </Field>
-          <Field label="Password" hint="At least 8 characters.">
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              autoComplete="new-password"
-              required
-              className={inputClass}
-            />
-          </Field>
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full rounded-xl bg-ink py-3 text-sm font-bold text-paper transition hover:bg-neutral-800 disabled:opacity-50"
-          >
-            {loading ? 'Creating account…' : 'Create account'}
-          </button>
-        </form>
+          <form onSubmit={onSubmit} className="mt-6 space-y-4">
+            <Field label="Username" hint="3-20 characters: letters, numbers, underscores.">
+              <input value={username} onChange={(e) => setUsername(e.target.value)} required className={inputClass} />
+            </Field>
+            <Field label="Email">
+              <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required className={inputClass} />
+            </Field>
+            <Field label="Password" hint="At least 8 characters.">
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                autoComplete="new-password"
+                required
+                className={inputClass}
+              />
+            </Field>
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full rounded-xl bg-ink py-3 text-sm font-bold text-paper transition hover:bg-neutral-200 disabled:opacity-50"
+            >
+              {loading ? 'Creating account…' : 'Create account'}
+            </button>
+          </form>
+        </div>
 
         <p className="mt-6 text-center text-sm text-neutral-400">
           Already have an account?{' '}

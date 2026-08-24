@@ -34,7 +34,8 @@ export default function AdminAnalyticsPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-ink">Analytics</h1>
+      <p className="font-mono text-xs font-medium uppercase tracking-[0.2em] text-neutral-500">Admin</p>
+      <h1 className="mt-2 text-2xl font-bold text-ink">Analytics</h1>
 
       <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
         {cards.map((c) => (

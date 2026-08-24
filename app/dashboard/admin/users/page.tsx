@@ -58,7 +58,8 @@ export default function AdminUsersPage() {
   return (
     <div>
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-ink">Users</h1>
+        <p className="font-mono text-xs font-medium uppercase tracking-[0.2em] text-neutral-500">Admin</p>
+        <h1 className="mt-2 text-2xl font-bold text-ink">Users</h1>
       </div>
 
       <form

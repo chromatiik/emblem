@@ -112,7 +112,8 @@ export default function AdminPlansPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-ink">Pricing plans</h1>
+      <p className="font-mono text-xs font-medium uppercase tracking-[0.2em] text-neutral-500">Admin</p>
+      <h1 className="mt-2 text-2xl font-bold text-ink">Pricing plans</h1>
       <p className="mt-1 text-sm text-neutral-400">
         These prices are what customers see on <a href="/pricing" className="text-ink underline">/pricing</a> and pay
         through <em>any</em> of the three payment methods (card, crypto, PayPal) — the price here is the single

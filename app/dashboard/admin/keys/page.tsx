@@ -97,7 +97,8 @@ export default function AdminKeysPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-ink">Keys</h1>
+      <p className="font-mono text-xs font-medium uppercase tracking-[0.2em] text-neutral-500">Admin</p>
+      <h1 className="mt-2 text-2xl font-bold text-ink">Keys</h1>
 
       <div className="mt-4 rounded-2xl border border-white/10 bg-white/[0.035] p-6 backdrop-blur">
         <h2 className="font-bold text-ink">Generate a key</h2>
@@ -132,7 +133,7 @@ export default function AdminKeysPage() {
           <button
             type="submit"
             disabled={generating}
-            className="rounded-lg bg-ink px-5 py-2.5 text-sm font-bold text-paper transition hover:bg-neutral-800 disabled:opacity-50"
+            className="rounded-lg bg-ink px-5 py-2.5 text-sm font-bold text-paper transition hover:bg-neutral-200 disabled:opacity-50"
           >
             {generating ? 'Generating…' : 'Generate'}
           </button>

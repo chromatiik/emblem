@@ -54,10 +54,26 @@ export default function DashboardPage() {
     }
   }
 
+  const activeCount = keys?.filter((k) => k.status === 'active').length ?? 0;
+
   return (
     <div>
-      <h1 className="text-2xl font-bold text-ink">Your keys</h1>
+      <p className="font-mono text-xs font-medium uppercase tracking-[0.2em] text-neutral-500">Account</p>
+      <h1 className="mt-2 text-2xl font-bold text-ink">Your keys</h1>
       <p className="mt-1 text-sm text-neutral-400">Everything tied to your account.</p>
+
+      {keys !== null && keys.length > 0 && (
+        <div className="mt-6 flex divide-x divide-white/[0.08] rounded-2xl border border-white/10 bg-white/[0.02]">
+          <div className="flex-1 px-6 py-4">
+            <div className="text-2xl font-bold text-ink">{activeCount}</div>
+            <div className="mt-0.5 font-mono text-[10px] uppercase tracking-[0.1em] text-neutral-500">Active</div>
+          </div>
+          <div className="flex-1 px-6 py-4">
+            <div className="text-2xl font-bold text-ink">{keys.length}</div>
+            <div className="mt-0.5 font-mono text-[10px] uppercase tracking-[0.1em] text-neutral-500">Total keys</div>
+          </div>
+        </div>
+      )}
 
       {keys === null ? (
         <div className="mt-8 grid gap-4 sm:grid-cols-2">
@@ -68,7 +84,7 @@ export default function DashboardPage() {
       ) : keys.length === 0 ? (
         <div className="mt-8 rounded-2xl border border-white/10 bg-white/[0.035] p-10 text-center">
           <p className="text-neutral-400">No keys yet.</p>
-          <a href="/pricing" className="mt-4 inline-block rounded-xl bg-ink px-5 py-2.5 text-sm font-bold text-paper hover:bg-neutral-800">
+          <a href="/pricing" className="mt-4 inline-block rounded-xl bg-ink px-5 py-2.5 text-sm font-bold text-paper hover:bg-neutral-200">
             Get a key
           </a>
         </div>
@@ -107,10 +123,10 @@ function KeyCard({ k, onReset, resetting }: { k: KeyRow; onReset: () => void; re
         </span>
       </div>
 
-      <dl className="mt-4 space-y-2 text-sm">
+      <dl className="mt-4 grid grid-cols-2 gap-x-4 gap-y-3 border-t border-white/[0.06] pt-4 text-sm">
         <Row label="Device">{k.hwid_bound ? 'Bound' : 'Not yet bound'}</Row>
         <Row label="Uses">{k.usage_count}</Row>
-        <Row label="Last used">{k.last_used_at ? new Date(k.last_used_at).toLocaleString() : 'Never'}</Row>
+        <Row label="Last used">{k.last_used_at ? new Date(k.last_used_at).toLocaleDateString() : 'Never'}</Row>
         <Row label="Roblox user">{k.last_roblox_username || '—'}</Row>
         <Row label="Expires">{k.expires_at ? new Date(k.expires_at).toLocaleDateString() : 'Never'}</Row>
       </dl>
@@ -130,9 +146,9 @@ function KeyCard({ k, onReset, resetting }: { k: KeyRow; onReset: () => void; re
 
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="flex items-center justify-between">
-      <dt className="text-neutral-400">{label}</dt>
-      <dd className="font-medium text-neutral-200">{children}</dd>
+    <div>
+      <dt className="font-mono text-[10px] uppercase tracking-[0.08em] text-neutral-500">{label}</dt>
+      <dd className="mt-0.5 truncate font-medium text-neutral-200">{children}</dd>
     </div>
   );
 }

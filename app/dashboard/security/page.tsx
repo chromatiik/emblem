@@ -97,7 +97,7 @@ export default function SecurityPage() {
           <button
             type="submit"
             disabled={saving}
-            className="rounded-lg bg-ink px-5 py-2.5 text-sm font-bold text-paper transition hover:bg-neutral-800 disabled:opacity-50"
+            className="rounded-lg bg-ink px-5 py-2.5 text-sm font-bold text-paper transition hover:bg-neutral-200 disabled:opacity-50"
           >
             {saving ? 'Updating…' : 'Update password'}
           </button>

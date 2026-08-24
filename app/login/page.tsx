@@ -54,52 +54,54 @@ function LoginForm() {
           emblem
         </Link>
 
-        <h1 className="text-2xl font-bold text-ink">Welcome back</h1>
-        <p className="mt-1 text-sm text-neutral-400">Log in to manage your keys.</p>
+        <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-7 shadow-2xl backdrop-blur">
+          <h1 className="text-2xl font-bold text-ink">Welcome back</h1>
+          <p className="mt-1 text-sm text-neutral-400">Log in to manage your keys.</p>
 
-        {error && (
-          <div className="mt-6 rounded-lg border border-red-500/30 bg-red-950/50 px-4 py-3 text-sm text-red-300">{error}</div>
-        )}
+          {error && (
+            <div className="mt-6 rounded-lg border border-red-500/30 bg-red-950/50 px-4 py-3 text-sm text-red-300">{error}</div>
+          )}
 
-        <form onSubmit={onSubmit} className="mt-6 space-y-4">
-          <Field label="Username">
-            <input
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              autoComplete="username"
-              required
-              className={inputClass}
-            />
-          </Field>
-          <Field label="Password">
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              autoComplete="current-password"
-              required
-              className={inputClass}
-            />
-          </Field>
-          {needsTotp && (
-            <Field label="Authenticator code">
+          <form onSubmit={onSubmit} className="mt-6 space-y-4">
+            <Field label="Username">
               <input
-                value={totpCode}
-                onChange={(e) => setTotpCode(e.target.value)}
-                inputMode="numeric"
-                maxLength={6}
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                autoComplete="username"
+                required
                 className={inputClass}
               />
             </Field>
-          )}
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full rounded-xl bg-ink py-3 text-sm font-bold text-paper transition hover:bg-neutral-800 disabled:opacity-50"
-          >
-            {loading ? 'Logging in…' : 'Log in'}
-          </button>
-        </form>
+            <Field label="Password">
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                autoComplete="current-password"
+                required
+                className={inputClass}
+              />
+            </Field>
+            {needsTotp && (
+              <Field label="Authenticator code">
+                <input
+                  value={totpCode}
+                  onChange={(e) => setTotpCode(e.target.value)}
+                  inputMode="numeric"
+                  maxLength={6}
+                  className={inputClass}
+                />
+              </Field>
+            )}
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full rounded-xl bg-ink py-3 text-sm font-bold text-paper transition hover:bg-neutral-200 disabled:opacity-50"
+            >
+              {loading ? 'Logging in…' : 'Log in'}
+            </button>
+          </form>
+        </div>
 
         <p className="mt-6 text-center text-sm text-neutral-400">
           Don&apos;t have an account?{' '}

@@ -36,7 +36,8 @@ export function PricingClient() {
 
   return (
     <main className="relative z-10 mx-auto max-w-5xl px-6 py-24">
-      <h1 className="text-center text-4xl font-black text-ink">Pricing</h1>
+      <p className="text-center font-mono text-xs font-medium uppercase tracking-[0.2em] text-neutral-500">Get access</p>
+      <h1 className="mt-3 text-center text-4xl font-black text-ink">Pricing</h1>
       <p className="mx-auto mt-3 max-w-md text-center text-neutral-400">
         Every plan includes the same protected delivery — key auth, HWID binding, replay protection.
       </p>
@@ -61,13 +62,18 @@ export function PricingClient() {
           {plans.map((p, i) => (
             <div
               key={p.id}
-              className={`flex flex-col rounded-2xl border p-7 backdrop-blur ${
-                i === 1 ? 'border-white/15 bg-white/[0.03]' : 'border-white/10 bg-white/[0.035]'
+              className={`relative flex flex-col rounded-2xl border p-7 backdrop-blur ${
+                i === 1 ? 'border-white/20 bg-white/[0.045]' : 'border-white/10 bg-white/[0.03]'
               }`}
             >
+              {i === 1 && (
+                <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-ink px-3 py-1 font-mono text-[10px] font-bold uppercase tracking-wide text-paper">
+                  Popular
+                </span>
+              )}
               <div className="font-bold text-ink">{p.name}</div>
-              <div className="mt-2 text-4xl font-black text-ink">{formatPrice(p.price_cents, p.currency)}</div>
-              <div className="mt-1 text-xs text-neutral-400">{p.duration_days ? `${p.duration_days} days` : 'Lifetime'}</div>
+              <div className="mt-2 font-mono text-4xl font-bold tracking-tight text-ink">{formatPrice(p.price_cents, p.currency)}</div>
+              <div className="mt-1 font-mono text-xs uppercase tracking-wide text-neutral-500">{p.duration_days ? `${p.duration_days} days` : 'Lifetime'}</div>
               {p.description && <p className="mt-4 text-sm text-neutral-400">{p.description}</p>}
               {p.features?.length > 0 && (
                 <ul className="mt-4 space-y-2 text-sm text-neutral-300">
@@ -80,7 +86,9 @@ export function PricingClient() {
               )}
               <button
                 onClick={() => buy(p.id)}
-                className="mt-6 rounded-xl bg-ink py-3 text-sm font-bold text-paper transition hover:bg-neutral-800"
+                className={`mt-6 rounded-xl py-3 text-sm font-bold transition ${
+                  i === 1 ? 'bg-ink text-paper hover:bg-neutral-200' : 'border border-white/15 text-ink hover:bg-white/[0.06]'
+                }`}
               >
                 Get this plan
               </button>

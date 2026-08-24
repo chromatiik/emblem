@@ -23,7 +23,8 @@ export default function AdminAuditLogsPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-ink">Audit logs</h1>
+      <p className="font-mono text-xs font-medium uppercase tracking-[0.2em] text-neutral-500">Admin</p>
+      <h1 className="mt-2 text-2xl font-bold text-ink">Audit logs</h1>
       <p className="mt-1 text-sm text-neutral-400">Every sensitive action taken by an admin, most recent first.</p>
 
       <p className="mt-6 text-xs text-neutral-500 sm:hidden">Swipe left/right to see more columns →</p>
