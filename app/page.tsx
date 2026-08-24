@@ -2,7 +2,6 @@ import Link from 'next/link';
 import { SiteBackground } from '@/components/SiteBackground';
 import { SiteNav } from '@/components/SiteNav';
 import { CopyButton } from '@/components/CopyButton';
-import { HeroImage } from '@/components/HeroImage';
 import { getPublicConfig } from '@/lib/config';
 import { getWorkingExecutors } from '@/lib/executors';
 import { query } from '@/lib/db';
@@ -52,120 +51,119 @@ export default async function LandingPage() {
 
       <main className="relative z-10">
         {/* Hero */}
-        <section className="mx-auto max-w-5xl px-6 pb-16 pt-28 text-center">
-          <div
-            className="animate-fade-up opacity-0 mb-6 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3.5 py-1.5 font-mono text-[11px] font-medium uppercase tracking-[0.14em] text-neutral-300"
-            style={{ animationDelay: '0ms' }}
-          >
-            <span className="relative flex h-1.5 w-1.5">
-              {config.scriptStatus === 'online' && (
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500 opacity-60" />
-              )}
-              <span className={`relative inline-flex h-1.5 w-1.5 rounded-full ${config.scriptStatus === 'online' ? 'bg-emerald-500' : 'bg-red-500'}`} />
-            </span>
-            {config.scriptStatus === 'online' ? 'Online' : 'Offline'} · v{config.currentVersion}
-          </div>
-
-          <h1
-            className="animate-fade-up opacity-0 select-none text-[clamp(3.75rem,13vw,8.5rem)] font-black leading-[0.88] tracking-tighter text-ink drop-shadow-[0_2px_24px_rgba(10,10,12,0.08)]"
-            style={{ animationDelay: '80ms' }}
-          >
-            EMBLEM
-          </h1>
-
-          <p
-            className="animate-fade-up opacity-0 mx-auto mt-5 max-w-md text-lg text-neutral-400"
-            style={{ animationDelay: '160ms' }}
-          >
-            A premium Roblox script with real key-based authentication, device binding, and real protection.
-          </p>
-
-          <div
-            className="animate-fade-up opacity-0 mt-9 flex flex-wrap items-center justify-center gap-3"
-            style={{ animationDelay: '240ms' }}
-          >
-            <Link
-              href="/pricing"
-              className="flex items-center gap-1.5 rounded-full bg-ink px-7 py-3.5 text-sm font-bold text-paper shadow-[0_8px_24px_-8px_rgba(10,10,12,0.35)] transition hover:-translate-y-0.5 hover:bg-neutral-200 hover:shadow-[0_12px_28px_-8px_rgba(10,10,12,0.4)]"
-            >
-              Get a key
-              <span aria-hidden>→</span>
-            </Link>
-            <Link
-              href="/discord"
-              className="rounded-full border border-white/10 bg-white/[0.045] px-7 py-3.5 text-sm font-bold text-ink backdrop-blur transition hover:-translate-y-0.5 hover:bg-white/[0.08]"
-            >
-              Join Discord
-            </Link>
-          </div>
-
-          <div
-            className="animate-fade-up opacity-0 mt-7 flex flex-wrap items-center justify-center gap-2"
-            style={{ animationDelay: '280ms' }}
-          >
-            {[
-              { label: 'Instant key delivery', icon: BoltIcon },
-              { label: 'Device-bound keys', icon: LockIcon },
-              { label: 'One-time payment', icon: CardIcon },
-            ].map(({ label, icon: Icon }) => (
-              <span
-                key={label}
-                className="flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.03] px-3.5 py-1.5 text-xs font-medium text-neutral-300"
+        <section className="mx-auto max-w-6xl px-6 pb-20 pt-28">
+          <div className="grid gap-12 lg:grid-cols-12 lg:items-center lg:gap-8">
+            <div className="lg:col-span-7">
+              <div
+                className="animate-fade-up opacity-0 mb-6 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3.5 py-1.5 font-mono text-[11px] font-medium uppercase tracking-[0.14em] text-neutral-300"
+                style={{ animationDelay: '0ms' }}
               >
-                <Icon className="h-3 w-3 text-neutral-500" />
-                {label}
-              </span>
-            ))}
-          </div>
+                <span className="relative flex h-1.5 w-1.5">
+                  {config.scriptStatus === 'online' && (
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500 opacity-60" />
+                  )}
+                  <span className={`relative inline-flex h-1.5 w-1.5 rounded-full ${config.scriptStatus === 'online' ? 'bg-emerald-500' : 'bg-red-500'}`} />
+                </span>
+                {config.scriptStatus === 'online' ? 'Online' : 'Offline'} · v{config.currentVersion}
+              </div>
 
-          <p className="animate-fade-up opacity-0 mt-4 text-xs text-neutral-400" style={{ animationDelay: '300ms' }}>
-            Using Emblem means you agree to the{' '}
-            <Link href="/terms" className="underline underline-offset-2 hover:text-ink">
-              Terms of Service
-            </Link>
-            .
-          </p>
+              <h1
+                className="animate-fade-up opacity-0 select-none text-[clamp(3.25rem,8vw,6rem)] font-black leading-[0.9] tracking-tighter text-ink drop-shadow-[0_2px_24px_rgba(10,10,12,0.08)]"
+                style={{ animationDelay: '80ms' }}
+              >
+                EMBLEM
+              </h1>
 
-          {showStats && (
-            <div
-              className="animate-fade-up opacity-0 mx-auto mt-14 grid max-w-2xl grid-cols-2 gap-y-6 border-y border-white/[0.08] py-7 sm:grid-cols-4 sm:divide-x sm:divide-white/[0.08]"
-              style={{ animationDelay: '330ms' }}
-            >
-              {[
-                { value: formatStat(stats.keys_issued), label: 'Keys issued' },
-                { value: formatStat(stats.verified_runs), label: 'Verified runs' },
-                { value: formatStat(stats.hwid_resets), label: 'HWID resets handled' },
-                { value: `v${config.currentVersion}`, label: 'Current version' },
-              ].map((s) => (
-                <div key={s.label} className="px-4">
-                  <div className="font-mono text-2xl font-bold tracking-tight text-ink">{s.value}</div>
-                  <div className="mt-1 font-mono text-[10px] uppercase tracking-[0.12em] text-neutral-500">{s.label}</div>
-                </div>
-              ))}
+              <p
+                className="animate-fade-up opacity-0 mt-5 max-w-md text-lg text-neutral-400"
+                style={{ animationDelay: '160ms' }}
+              >
+                A premium Roblox script with real key-based authentication, device binding, and real protection.
+              </p>
+
+              <div
+                className="animate-fade-up opacity-0 mt-9 flex flex-wrap items-center gap-3"
+                style={{ animationDelay: '240ms' }}
+              >
+                <Link
+                  href="/pricing"
+                  className="flex items-center gap-1.5 rounded-full bg-ink px-7 py-3.5 text-sm font-bold text-paper shadow-[0_8px_24px_-8px_rgba(10,10,12,0.35)] transition hover:-translate-y-0.5 hover:bg-neutral-200 hover:shadow-[0_12px_28px_-8px_rgba(10,10,12,0.4)]"
+                >
+                  Get a key
+                  <span aria-hidden>→</span>
+                </Link>
+                <Link
+                  href="/discord"
+                  className="rounded-full border border-white/10 bg-white/[0.045] px-7 py-3.5 text-sm font-bold text-ink backdrop-blur transition hover:-translate-y-0.5 hover:bg-white/[0.08]"
+                >
+                  Join Discord
+                </Link>
+              </div>
+
+              <div
+                className="animate-fade-up opacity-0 mt-7 flex flex-wrap items-center gap-2"
+                style={{ animationDelay: '280ms' }}
+              >
+                {[
+                  { label: 'Instant key delivery', icon: BoltIcon },
+                  { label: 'Device-bound keys', icon: LockIcon },
+                  { label: 'One-time payment', icon: CardIcon },
+                ].map(({ label, icon: Icon }) => (
+                  <span
+                    key={label}
+                    className="flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.03] px-3.5 py-1.5 text-xs font-medium text-neutral-300"
+                  >
+                    <Icon className="h-3 w-3 text-neutral-500" />
+                    {label}
+                  </span>
+                ))}
+              </div>
+
+              <p className="animate-fade-up opacity-0 mt-4 text-xs text-neutral-400" style={{ animationDelay: '300ms' }}>
+                Using Emblem means you agree to the{' '}
+                <Link href="/terms" className="underline underline-offset-2 hover:text-ink">
+                  Terms of Service
+                </Link>
+                .
+              </p>
             </div>
-          )}
 
-          <div
-            className="animate-fade-up opacity-0 mx-auto mt-12 flex max-w-3xl items-start justify-between gap-4 rounded-2xl border border-white/10 bg-black/60 px-6 py-5 text-left shadow-xl backdrop-blur"
-            style={{ animationDelay: '380ms' }}
-          >
-            <pre className="min-w-0 flex-1 whitespace-pre-wrap break-all font-mono text-sm leading-relaxed text-white">
-              <code>{exampleSnippet}</code>
-            </pre>
-            <CopyButton text={exampleSnippet} />
-          </div>
+            {/* Right: stats + loadstring, offset from the text column rather than stacked centered beneath it */}
+            <div className="lg:col-span-5">
+              {showStats && (
+                <div
+                  className="animate-fade-up opacity-0 grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.08]"
+                  style={{ animationDelay: '160ms' }}
+                >
+                  {[
+                    { value: formatStat(stats.keys_issued), label: 'Keys issued' },
+                    { value: formatStat(stats.verified_runs), label: 'Verified runs' },
+                    { value: formatStat(stats.hwid_resets), label: 'HWID resets' },
+                    { value: `v${config.currentVersion}`, label: 'Version' },
+                  ].map((s) => (
+                    <div key={s.label} className="bg-paper px-5 py-4">
+                      <div className="font-mono text-xl font-bold tracking-tight text-ink">{s.value}</div>
+                      <div className="mt-1 font-mono text-[10px] uppercase tracking-[0.1em] text-neutral-500">{s.label}</div>
+                    </div>
+                  ))}
+                </div>
+              )}
 
-          {/*
-            Drop your own product screenshot at /public/hero-mockup.png (or
-            change the src below) — this renders it exactly where the
-            reference site places its hero mockup image, with no
-            executor-specific "sUNC score" widget alongside it, since
-            that's a benchmark for executors specifically and doesn't
-            apply to what Emblem actually is.
-          */}
-          <div className="animate-fade-up opacity-0 mx-auto mt-16 max-w-3xl" style={{ animationDelay: '460ms' }}>
-            <div className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.035] shadow-2xl backdrop-blur">
-              <HeroImage src="/hero-mockup.png" alt="Emblem dashboard" />
+              <div
+                className="animate-fade-up opacity-0 mt-4 rounded-2xl border border-white/10 bg-black/60 p-5 text-left shadow-xl backdrop-blur"
+                style={{ animationDelay: '260ms' }}
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <pre className="min-w-0 flex-1 whitespace-pre-wrap break-all font-mono text-xs leading-relaxed text-white">
+                    <code>{exampleSnippet}</code>
+                  </pre>
+                  <CopyButton text={exampleSnippet} />
+                </div>
+              </div>
+
+              <p className="animate-fade-up opacity-0 mt-4 text-xs text-neutral-500" style={{ animationDelay: '320ms' }}>
+                No key-setting step — the loader shows a box to enter your key the moment it runs.
+              </p>
             </div>
           </div>
         </section>

@@ -332,3 +332,49 @@ CREATE TABLE IF NOT EXISTS site_visitors (
 CREATE INDEX IF NOT EXISTS idx_site_visitors_last_seen ON site_visitors(last_seen DESC);
 ALTER TABLE site_visitors ADD COLUMN IF NOT EXISTS is_vpn BOOLEAN;
 ALTER TABLE site_visitors ADD COLUMN IF NOT EXISTS vpn_checked_at TIMESTAMPTZ;
+
+-- ============================================================================
+-- marketplace_configs — user-uploaded Chromatik/Aether config JSON, browsable
+-- and searchable by anyone, uploaded from a user's own dashboard.
+-- ============================================================================
+CREATE TABLE IF NOT EXISTS marketplace_configs (
+  id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id       UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  name          VARCHAR(60) NOT NULL,
+  description   TEXT NOT NULL DEFAULT '',
+  tags          TEXT[] NOT NULL DEFAULT '{}',
+  config_json   TEXT NOT NULL,
+  download_count INTEGER NOT NULL DEFAULT 0,
+  created_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at    TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS idx_marketplace_configs_user ON marketplace_configs(user_id);
+CREATE INDEX IF NOT EXISTS idx_marketplace_configs_created ON marketplace_configs(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_marketplace_configs_tags ON marketplace_configs USING GIN(tags);
+-- Full-text search across name + description, kept up to date by the
+-- trigger below rather than computed on every query.
+ALTER TABLE marketplace_configs ADD COLUMN IF NOT EXISTS search_vector tsvector;
+CREATE INDEX IF NOT EXISTS idx_marketplace_configs_search ON marketplace_configs USING GIN(search_vector);
+
+CREATE OR REPLACE FUNCTION marketplace_configs_search_update() RETURNS trigger AS $$
+BEGIN
+  NEW.search_vector := setweight(to_tsvector('english', COALESCE(NEW.name, '')), 'A') ||
+                        setweight(to_tsvector('english', COALESCE(NEW.description, '')), 'B') ||
+                        setweight(to_tsvector('english', array_to_string(NEW.tags, ' ')), 'A');
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS marketplace_configs_search_trigger ON marketplace_configs;
+CREATE TRIGGER marketplace_configs_search_trigger
+  BEFORE INSERT OR UPDATE ON marketplace_configs
+  FOR EACH ROW EXECUTE FUNCTION marketplace_configs_search_update();
+
+-- One row per (config, downloader) so a user can only inflate a config's
+-- download_count once, not once per click.
+CREATE TABLE IF NOT EXISTS marketplace_downloads (
+  config_id  UUID NOT NULL REFERENCES marketplace_configs(id) ON DELETE CASCADE,
+  user_id    UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  PRIMARY KEY (config_id, user_id)
+);

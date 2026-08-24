@@ -14,6 +14,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   const items = [
     { href: '/dashboard', label: 'Overview' },
+    { href: '/dashboard/marketplace', label: 'Marketplace' },
     { href: '/dashboard/security', label: 'Security' },
     ...((user.role === 'admin' || user.role === 'owner') ? [{ href: '/dashboard/admin', label: 'Admin' }] : []),
   ];

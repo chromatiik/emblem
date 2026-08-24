@@ -7,6 +7,7 @@ import { NavLinks } from '@/components/NavLinks';
 const NAV_ITEMS = [
   { href: '/', label: 'Home' },
   { href: '/pricing', label: 'Pricing' },
+  { href: '/marketplace', label: 'Marketplace' },
 ];
 
 export async function SiteNav() {

@@ -26,6 +26,8 @@ export default function DashboardPage() {
   const confirm = useConfirm();
   const [keys, setKeys] = useState<KeyRow[] | null>(null);
   const [resettingId, setResettingId] = useState<string | null>(null);
+  const [claimInput, setClaimInput] = useState('');
+  const [claiming, setClaiming] = useState(false);
 
   async function load() {
     const res = await fetch('/api/keys');
@@ -36,6 +38,29 @@ export default function DashboardPage() {
   useEffect(() => {
     load();
   }, []);
+
+  async function claimKey(e: React.FormEvent) {
+    e.preventDefault();
+    if (!claimInput.trim()) return;
+    setClaiming(true);
+    try {
+      const res = await fetch('/api/keys/claim', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ key: claimInput.trim() }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        toast.push(data.error || 'Could not claim key.', 'error');
+        return;
+      }
+      toast.push('Key claimed and bound to your account.', 'success');
+      setClaimInput('');
+      load();
+    } finally {
+      setClaiming(false);
+    }
+  }
 
   async function resetHwid(id: string) {
     if (!(await confirm('Reset the device bound to this key? You can only do this once a week per key.', { confirmLabel: 'Reset device' }))) return;
@@ -62,18 +87,42 @@ export default function DashboardPage() {
       <h1 className="mt-2 text-2xl font-bold text-ink">Your keys</h1>
       <p className="mt-1 text-sm text-neutral-400">Everything tied to your account.</p>
 
-      {keys !== null && keys.length > 0 && (
-        <div className="mt-6 flex divide-x divide-white/[0.08] rounded-2xl border border-white/10 bg-white/[0.02]">
-          <div className="flex-1 px-6 py-4">
-            <div className="text-2xl font-bold text-ink">{activeCount}</div>
-            <div className="mt-0.5 font-mono text-[10px] uppercase tracking-[0.1em] text-neutral-500">Active</div>
+      <div className="mt-6 grid gap-4 sm:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)]">
+        {keys !== null && keys.length > 0 && (
+          <div className="flex divide-x divide-white/[0.08] rounded-2xl border border-white/10 bg-white/[0.02]">
+            <div className="flex-1 px-6 py-4">
+              <div className="text-2xl font-bold text-ink">{activeCount}</div>
+              <div className="mt-0.5 font-mono text-[10px] uppercase tracking-[0.1em] text-neutral-500">Active</div>
+            </div>
+            <div className="flex-1 px-6 py-4">
+              <div className="text-2xl font-bold text-ink">{keys.length}</div>
+              <div className="mt-0.5 font-mono text-[10px] uppercase tracking-[0.1em] text-neutral-500">Total keys</div>
+            </div>
           </div>
-          <div className="flex-1 px-6 py-4">
-            <div className="text-2xl font-bold text-ink">{keys.length}</div>
-            <div className="mt-0.5 font-mono text-[10px] uppercase tracking-[0.1em] text-neutral-500">Total keys</div>
+        )}
+
+        <form onSubmit={claimKey} className={`rounded-2xl border border-white/10 bg-white/[0.02] p-4 ${keys && keys.length > 0 ? '' : 'sm:col-span-2'}`}>
+          <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.1em] text-neutral-500">Have a key already?</p>
+          <div className="mt-2 flex gap-2">
+            <input
+              value={claimInput}
+              onChange={(e) => setClaimInput(e.target.value)}
+              placeholder="EMBLEM-XXXX-XXXX-XXXX-XXXX"
+              className="min-w-0 flex-1 rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2 font-mono text-xs text-ink outline-none focus:border-white/25"
+            />
+            <button
+              type="submit"
+              disabled={claiming}
+              className="shrink-0 rounded-lg bg-ink px-4 py-2 text-xs font-bold text-paper transition hover:bg-neutral-200 disabled:opacity-50"
+            >
+              {claiming ? 'Claiming…' : 'Claim'}
+            </button>
           </div>
-        </div>
-      )}
+          <p className="mt-2 text-xs text-neutral-500">
+            Binds it to this account permanently. A key already claimed by someone else can&apos;t be reclaimed.
+          </p>
+        </form>
+      </div>
 
       {keys === null ? (
         <div className="mt-8 grid gap-4 sm:grid-cols-2">
