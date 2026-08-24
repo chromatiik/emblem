@@ -124,13 +124,6 @@ export default function TermsPage() {
             </p>
           </Section>
         </div>
-
-        <div className="mt-12 rounded-xl border border-amber-500/20 bg-amber-500/[0.06] p-5 text-sm text-amber-200/80">
-          <strong className="text-amber-200">Not legal advice.</strong> This is a general-purpose template covering
-          the standard points for a service like this one, not a substitute for review by a lawyer familiar with your
-          jurisdiction and business specifics — worth having reviewed before you rely on it, especially the refund,
-          liability, and governing-law sections.
-        </div>
       </main>
     </>
   );
