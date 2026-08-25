@@ -43,14 +43,19 @@ async function POSTHandler(req: Request) {
   const ip = getRequestIp(req);
   const ipHash = getRequestIpHash(req);
 
-  if (await isIpBanned(ip)) {
+  // These two only depend on the IP, which is available immediately —
+  // no reason to wait on one before starting the other.
+  const [banned, ipRateLimited] = await Promise.all([
+    isIpBanned(ip),
+    isRateLimited(`loader_auth_ip:${ipHash}`, 30, 60),
+  ]);
+
+  if (banned) {
     await logUsage({ eventType: 'ip_banned' });
     return NextResponse.json({ error: 'access_denied' }, { status: 403 });
   }
 
-  // Layered rate limiting: per-IP catches broad abuse, per-key catches a
-  // single leaked key being hammered from many sources.
-  if (await isRateLimited(`loader_auth_ip:${ipHash}`, 30, 60)) {
+  if (ipRateLimited) {
     return NextResponse.json({ error: 'rate_limited' }, { status: 429 });
   }
 
@@ -68,16 +73,22 @@ async function POSTHandler(req: Request) {
 
   const keyHash = hashKey(body.key);
 
-  if (await isRateLimited(`loader_auth_key:${keyHash}`, 20, 60)) {
+  // Same reasoning as the IP checks above — both only need keyHash, so
+  // there's no reason to wait on the rate-limit query before starting the
+  // key lookup. If rate-limited, the lookup result is just discarded.
+  const [keyRateLimited, keyRow] = await Promise.all([
+    isRateLimited(`loader_auth_key:${keyHash}`, 20, 60),
+    queryOne<{
+      id: string;
+      status: string;
+      hwid_hash: string | null;
+      expires_at: string | null;
+    }>(`SELECT id, status, hwid_hash, expires_at FROM keys WHERE key_hash = $1`, [keyHash]),
+  ]);
+
+  if (keyRateLimited) {
     return NextResponse.json({ error: 'rate_limited' }, { status: 429 });
   }
-
-  const keyRow = await queryOne<{
-    id: string;
-    status: string;
-    hwid_hash: string | null;
-    expires_at: string | null;
-  }>(`SELECT id, status, hwid_hash, expires_at FROM keys WHERE key_hash = $1`, [keyHash]);
 
   if (!keyRow) {
     await logUsage({ eventType: 'auth_fail' });
@@ -133,21 +144,24 @@ async function POSTHandler(req: Request) {
     throw err;
   }
 
-  await query(
-    `UPDATE keys SET usage_count = usage_count + 1, last_used_at = now(),
-       last_roblox_user_id = COALESCE(NULLIF($2, ''), last_roblox_user_id),
-       last_roblox_username = COALESCE(NULLIF($3, ''), last_roblox_username)
-     WHERE id = $1`,
-    [keyRow.id, body.robloxUserId ?? '', body.robloxUsername ?? '']
-  );
-
-  await logUsage({
-    keyId: keyRow.id,
-    eventType: 'auth_success',
-    hwidHash,
-    robloxUserId: body.robloxUserId,
-    robloxUsername: body.robloxUsername,
-  });
+  // Both independent of each other's results, and neither's output is
+  // needed for the response — no reason to run them one after another.
+  await Promise.all([
+    query(
+      `UPDATE keys SET usage_count = usage_count + 1, last_used_at = now(),
+         last_roblox_user_id = COALESCE(NULLIF($2, ''), last_roblox_user_id),
+         last_roblox_username = COALESCE(NULLIF($3, ''), last_roblox_username)
+       WHERE id = $1`,
+      [keyRow.id, body.robloxUserId ?? '', body.robloxUsername ?? '']
+    ),
+    logUsage({
+      keyId: keyRow.id,
+      eventType: 'auth_success',
+      hwidHash,
+      robloxUserId: body.robloxUserId,
+      robloxUsername: body.robloxUsername,
+    }),
+  ]);
 
   return NextResponse.json({ sessionToken, expiresIn: SESSION_TTL_SECONDS });
 }

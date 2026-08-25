@@ -33,13 +33,25 @@ async function POSTHandler(req: Request) {
   // by an attacker or raced by a buggy client — finds status != 'issued'
   // and returns nothing, so the payload is only ever handed out once per
   // successful auth handshake.
-  const consumed = await queryOne<{ key_id: string; hwid_hash: string | null }>(
-    `UPDATE key_sessions
-     SET status = 'consumed', consumed_at = now()
-     WHERE token_hash = $1 AND status = 'issued' AND expires_at > now()
-     RETURNING key_id, hwid_hash`,
-    [tokenHash]
-  );
+  //
+  // Run this alongside the payload fetch rather than before it — neither
+  // depends on the other's result, and the payload fetch (a full script,
+  // ~800KB of text) is likely the single slowest step in the entire
+  // loader flow. If the session turns out to be invalid, the fetched
+  // payload is just discarded, which costs far less than making every
+  // successful request wait for these two full round-trips in series.
+  const [consumed, version] = await Promise.all([
+    queryOne<{ key_id: string; hwid_hash: string | null }>(
+      `UPDATE key_sessions
+       SET status = 'consumed', consumed_at = now()
+       WHERE token_hash = $1 AND status = 'issued' AND expires_at > now()
+       RETURNING key_id, hwid_hash`,
+      [tokenHash]
+    ),
+    queryOne<{ id: string; payload: string }>(
+      `SELECT id, payload FROM script_versions WHERE is_enabled = TRUE ORDER BY created_at DESC LIMIT 1`
+    ),
+  ]);
 
   if (!consumed) {
     return new NextResponse('', { status: 401 });
@@ -47,10 +59,6 @@ async function POSTHandler(req: Request) {
 
   // Soft, logged-only signal — never the actual gate (see lib/audit.ts).
   const flaggedAsBrowser = looksLikeBrowser(req.headers.get('user-agent'));
-
-  const version = await queryOne<{ id: string; payload: string }>(
-    `SELECT id, payload FROM script_versions WHERE is_enabled = TRUE ORDER BY created_at DESC LIMIT 1`
-  );
 
   if (!version) {
     return new NextResponse('', { status: 503 });
