@@ -5,6 +5,7 @@ import { SiteNav } from '@/components/SiteNav';
 import { queryOne, query } from '@/lib/db';
 import { getCurrentUser } from '@/lib/auth';
 import { CopyButton } from '@/components/CopyButton';
+import { DownloadJsonButton } from '@/components/DownloadJsonButton';
 
 export const dynamic = 'force-dynamic';
 
@@ -77,7 +78,10 @@ export default async function ConfigDetailPage({ params }: { params: { id: strin
               <pre className="min-w-0 flex-1 overflow-x-auto whitespace-pre font-mono text-xs leading-relaxed text-white">
                 <code>{config.config_json}</code>
               </pre>
-              <CopyButton text={config.config_json} />
+              <div className="flex shrink-0 flex-col gap-2">
+                <CopyButton text={config.config_json} />
+                <DownloadJsonButton json={config.config_json} filename={config.name} />
+              </div>
             </div>
             {!user && (
               <p className="mt-3 text-xs text-neutral-500">

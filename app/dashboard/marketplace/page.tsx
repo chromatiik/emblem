@@ -75,6 +75,25 @@ export default function DashboardMarketplacePage() {
     load();
   }
 
+  async function onDownload(c: MyConfig) {
+    const res = await fetch(`/api/marketplace/${c.id}`);
+    const data = await res.json();
+    if (!res.ok || !data.config) {
+      toast.push(data.error || 'Could not load config.', 'error');
+      return;
+    }
+    const filename = c.name.trim().replace(/[^a-zA-Z0-9 _-]/g, '').replace(/\s+/g, '-').toLowerCase() || 'config';
+    const blob = new Blob([data.config.config_json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${filename}.json`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }
+
   return (
     <div>
       <p className="font-mono text-xs font-medium uppercase tracking-[0.2em] text-neutral-500">Your account</p>
@@ -143,12 +162,20 @@ export default function DashboardMarketplacePage() {
                       </Link>
                       <p className="mt-0.5 text-xs text-neutral-500">↓{c.download_count} downloads</p>
                     </div>
-                    <button
-                      onClick={() => onDelete(c)}
-                      className="shrink-0 rounded-md border border-red-500/30 px-2 py-1 text-[11px] font-semibold text-red-400 hover:bg-red-500/10"
-                    >
-                      Delete
-                    </button>
+                    <div className="flex shrink-0 items-center gap-2">
+                      <button
+                        onClick={() => onDownload(c)}
+                        className="rounded-md border border-white/10 px-2 py-1 text-[11px] font-semibold text-neutral-300 hover:bg-white/[0.05]"
+                      >
+                        Download
+                      </button>
+                      <button
+                        onClick={() => onDelete(c)}
+                        className="rounded-md border border-red-500/30 px-2 py-1 text-[11px] font-semibold text-red-400 hover:bg-red-500/10"
+                      >
+                        Delete
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))
