@@ -22,7 +22,7 @@ export default function AdminScriptsPage() {
   const [version, setVersion] = useState('');
   const [notes, setNotes] = useState('');
   const [executors, setExecutors] = useState('');
-  const [payload, setPayload] = useState('');
+  const [payloadFile, setPayloadFile] = useState<File | null>(null);
   const [enableNow, setEnableNow] = useState(true);
   const [uploading, setUploading] = useState(false);
 
@@ -38,17 +38,27 @@ export default function AdminScriptsPage() {
 
   async function upload(e: React.FormEvent) {
     e.preventDefault();
+    if (!payloadFile) {
+      toast.push('Select a .lua file to upload.', 'error');
+      return;
+    }
     setUploading(true);
     try {
+      // Read the file's exact raw bytes directly - critically, this never
+      // goes through a pasted-into-textarea step or TextEncoder/TextDecoder,
+      // both of which force an interpretation of the content as text and
+      // are a real corruption risk for something this large and irreplaceable
+      // (a heavily obfuscated script that's expensive to regenerate). The
+      // bytes read here are compressed as-is and never touched again until
+      // the server writes back the exact same bytes it received.
+      const rawBytes = new Uint8Array(await payloadFile.arrayBuffer());
+
       // Vercel's serverless functions have a hard 4.5MB request body limit
-      // that can't be configured away - and a script this size, once
-      // JSON-escaped (every quote, backslash, newline expands), can get
+      // that can't be configured away - and an obfuscated script can get
       // close to or past that on its own. Gzip compresses Lua source
-      // dramatically (typically 70-85%), so compress here and decompress
-      // server-side rather than sending raw text.
-      const encoder = new TextEncoder();
-      const payloadBytes = encoder.encode(payload);
-      const compressedStream = new Blob([payloadBytes]).stream().pipeThrough(new CompressionStream('gzip'));
+      // dramatically, so compress here and decompress server-side rather
+      // than sending the raw bytes directly.
+      const compressedStream = new Blob([rawBytes]).stream().pipeThrough(new CompressionStream('gzip'));
       const compressedBuffer = await new Response(compressedStream).arrayBuffer();
       const compressedBytes = new Uint8Array(compressedBuffer);
       let binary = '';
@@ -86,7 +96,7 @@ export default function AdminScriptsPage() {
       setVersion('');
       setNotes('');
       setExecutors('');
-      setPayload('');
+      setPayloadFile(null);
       load();
     } finally {
       setUploading(false);
@@ -152,14 +162,23 @@ export default function AdminScriptsPage() {
           rows={2}
           className={inputClass}
         />
-        <textarea
-          value={payload}
-          onChange={(e) => setPayload(e.target.value)}
-          placeholder="Lua payload — this is private and never rendered publicly"
-          rows={8}
-          required
-          className={`${inputClass} font-mono text-xs`}
-        />
+        <div>
+          <label className="flex cursor-pointer items-center justify-center rounded-lg border border-dashed border-white/15 bg-white/[0.02] px-4 py-6 text-sm text-neutral-400 transition hover:border-white/25 hover:bg-white/[0.04]">
+            <input
+              type="file"
+              accept=".lua,.txt"
+              className="hidden"
+              onChange={(e) => setPayloadFile(e.target.files?.[0] ?? null)}
+            />
+            {payloadFile ? (
+              <span className="text-ink">
+                {payloadFile.name} — {(payloadFile.size / 1024).toFixed(1)} KB
+              </span>
+            ) : (
+              <span>Click to select a .lua file — pasting a large obfuscated script risks the browser mangling it</span>
+            )}
+          </label>
+        </div>
         <label className="flex items-center gap-2 text-sm text-neutral-300">
           <input type="checkbox" checked={enableNow} onChange={(e) => setEnableNow(e.target.checked)} />
           Make this the active version immediately
