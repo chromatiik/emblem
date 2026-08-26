@@ -77,7 +77,33 @@ async function POSTHandler(req: Request) {
     ]);
   }
 
-  return new NextResponse(version.payload, { status: 200, headers: { 'Content-Type': 'text/plain; charset=utf-8' } });
+  // Streamed rather than returned as a single buffered string. Vercel's
+  // hard 4.5MB limit applies specifically to buffered response bodies -
+  // streaming responses are documented as exempt from it. This matters
+  // because obfuscation (especially VM-based) can inflate a script's size
+  // dramatically, and an obfuscated payload could plausibly exceed that
+  // limit even when the original source doesn't - which would silently
+  // truncate the response before it ever reaches the loader, producing
+  // exactly the kind of "incomplete script" parse error this is fixing.
+  const payloadBytes = new TextEncoder().encode(version.payload);
+  const chunkSize = 65536;
+  const stream = new ReadableStream({
+    start(controller) {
+      let offset = 0;
+      function push() {
+        if (offset >= payloadBytes.length) {
+          controller.close();
+          return;
+        }
+        controller.enqueue(payloadBytes.subarray(offset, offset + chunkSize));
+        offset += chunkSize;
+        push();
+      }
+      push();
+    },
+  });
+
+  return new NextResponse(stream, { status: 200, headers: { 'Content-Type': 'text/plain; charset=utf-8' } });
 }
 
 export const POST = withErrorHandling(POSTHandler);

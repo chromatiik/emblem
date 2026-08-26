@@ -53,7 +53,7 @@ async function POSTHandler(req: Request) {
   } catch {
     return NextResponse.json({ error: 'Could not decompress payload — try uploading again.' }, { status: 400 });
   }
-  if (payload.length < 1 || payload.length > 2_000_000) {
+  if (payload.length < 1 || payload.length > 20_000_000) {
     return NextResponse.json({ error: 'Decompressed payload is empty or too large.' }, { status: 400 });
   }
 
