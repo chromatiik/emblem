@@ -26,7 +26,7 @@ export function NavLinks({ items, exactPaths = [], size = 'md' }: { items: NavIt
               size === 'sm' ? 'px-3.5 py-1.5 text-sm' : 'px-3.5 py-2 text-sm'
             } ${
               isActive
-                ? 'bg-white/[0.09] text-ink'
+                ? 'bg-signal/15 text-signal'
                 : 'text-neutral-400 hover:bg-white/[0.04] hover:text-ink'
             }`}
           >
