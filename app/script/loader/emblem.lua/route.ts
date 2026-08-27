@@ -64,11 +64,6 @@ local function post(url, data)
   return nil, 0
 end
 
--- Attempts the full authenticated handshake and, on success, fetches and
--- runs the real payload. Returns true on success (the script is already
--- running by the time this returns) or false plus a human-readable reason
--- on failure — used both for the normal silent path (key already set) and
--- the in-game "Check Key" recovery UI (key typed in manually).
 local function attemptRun(key)
   if type(key) ~= "string" or key == "" then
     return false, "No key provided."
@@ -116,16 +111,6 @@ local function attemptRun(key)
     return false, "Failed to load script: " .. tostring(err)
   end
 
-  -- Hand the payload the exact HWID this handshake just succeeded with,
-  -- rather than letting it compute its own independently. Two separate
-  -- getHWID() calls (loader's and payload's, in two separate loadstring'd
-  -- chunks) are not guaranteed to produce identical values on every
-  -- executor — if the payload's own call ever diverges even slightly, its
-  -- self-verification would fail with a key that just worked seconds
-  -- earlier. Sharing the value removes that entire failure class.
-  -- Same reasoning as the HWID share below: don't make the payload trust
-  -- its own independent _G/getgenv() read of the key either. Hand it the
-  -- exact value this handshake just succeeded with.
   if getgenv then getgenv().__emblem_key = key else _G.__emblem_key = key end
   if getgenv then getgenv().__emblem_hwid = HWID else _G.__emblem_hwid = HWID end
 
@@ -331,11 +316,6 @@ local function buildKeyGui(onCheckKey, onGetKey)
   }
 end
 
--- Always show the key-entry UI rather than trying to auto-detect a
--- pre-set script_key global. Bare global assignment (script_key = "...")
--- has proven unreliable across executors — this removes that whole class
--- of failure by never depending on it in the first place. Users just run
--- the loadstring with no setup step; the box handles everything.
 local gui
 gui = buildKeyGui(
   function(enteredKey, callback)

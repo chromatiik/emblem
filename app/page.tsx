@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { unstable_cache } from 'next/cache';
 import { SiteBackground } from '@/components/SiteBackground';
 import { SiteNav } from '@/components/SiteNav';
 import { CopyButton } from '@/components/CopyButton';
@@ -7,7 +8,23 @@ import { getWorkingExecutors } from '@/lib/executors';
 import { query } from '@/lib/db';
 import { formatPrice } from '@/lib/format';
 
-export const dynamic = 'force-dynamic';
+const getHomepageData = unstable_cache(
+  async () => {
+    const [config, executors] = await Promise.all([getPublicConfig(), getWorkingExecutors()]);
+    const { rows: plans } = await query<{ id: string; name: string; price_cents: number; currency: string; duration_days: number | null }>(
+      `SELECT id, name, price_cents, currency, duration_days FROM pricing_plans WHERE is_active = TRUE ORDER BY sort_order ASC LIMIT 3`
+    );
+    const { rows: statRows } = await query<{ keys_issued: string; verified_runs: string; hwid_resets: string }>(
+      `SELECT
+        (SELECT COUNT(*) FROM keys) AS keys_issued,
+        (SELECT COUNT(*) FROM script_usage WHERE event_type = 'auth_success') AS verified_runs,
+        (SELECT COALESCE(SUM(hwid_reset_count), 0) FROM keys) AS hwid_resets`
+    );
+    return { config, executors, plans, statRow: statRows[0] ?? { keys_issued: '0', verified_runs: '0', hwid_resets: '0' } };
+  },
+  ['homepage-data'],
+  { revalidate: 60 }
+);
 
 const FEATURES = [
   { title: 'Real key authentication', desc: 'Every execution goes through a server-verified handshake — not a static file anyone can download.', icon: LockIcon },
@@ -24,17 +41,8 @@ const FAQ = [
 ];
 
 export default async function LandingPage() {
-  const [config, executors] = await Promise.all([getPublicConfig(), getWorkingExecutors()]);
-  const { rows: plans } = await query<{ id: string; name: string; price_cents: number; currency: string; duration_days: number | null }>(
-    `SELECT id, name, price_cents, currency, duration_days FROM pricing_plans WHERE is_active = TRUE ORDER BY sort_order ASC LIMIT 3`
-  );
-  const { rows: statRows } = await query<{ keys_issued: string; verified_runs: string; hwid_resets: string }>(
-    `SELECT
-      (SELECT COUNT(*) FROM keys) AS keys_issued,
-      (SELECT COUNT(*) FROM script_usage WHERE event_type = 'auth_success') AS verified_runs,
-      (SELECT COALESCE(SUM(hwid_reset_count), 0) FROM keys) AS hwid_resets`
-  );
-  const stats = statRows[0] ?? { keys_issued: '0', verified_runs: '0', hwid_resets: '0' };
+  const { config, executors, plans, statRow } = await getHomepageData();
+  const stats = statRow;
   const showStats = parseInt(stats.keys_issued, 10) > 0;
   const formatStat = (n: string) => {
     const num = parseInt(n, 10) || 0;

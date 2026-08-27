@@ -1,6 +1,7 @@
 import 'server-only';
 
 import bcrypt from 'bcryptjs';
+import { cache } from 'react';
 import { query, queryOne } from './db';
 import { generateToken, hashToken } from './crypto';
 
@@ -114,11 +115,11 @@ export function isCommonPassword(p: string): boolean {
 }
 
 /** For use in Server Components / Route Handlers only (reads the cookie jar). */
-export async function getCurrentUser(): Promise<SessionUser | null> {
+export const getCurrentUser = cache(async function getCurrentUser(): Promise<SessionUser | null> {
   const { cookies } = await import('next/headers');
   const token = cookies().get(SESSION_COOKIE)?.value;
   return getUserFromSessionToken(token);
-}
+});
 
 export async function getCurrentSessionToken(): Promise<string | undefined> {
   const { cookies } = await import('next/headers');
