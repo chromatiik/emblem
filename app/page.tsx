@@ -3,6 +3,7 @@ import { unstable_cache } from 'next/cache';
 import { SiteBackground } from '@/components/SiteBackground';
 import { SiteNav } from '@/components/SiteNav';
 import { CopyButton } from '@/components/CopyButton';
+import { TelemetryGraph } from '@/components/TelemetryGraph';
 import { getPublicConfig } from '@/lib/config';
 import { getWorkingExecutors } from '@/lib/executors';
 import { query } from '@/lib/db';
@@ -26,11 +27,11 @@ const getHomepageData = unstable_cache(
   { revalidate: 60 }
 );
 
-const FEATURES = [
-  { title: 'Real key authentication', desc: 'Every execution goes through a server-verified handshake — not a static file anyone can download.', icon: LockIcon },
-  { title: 'HWID binding', desc: 'Keys bind to a device on first use. Reset it yourself from your dashboard when you need to.', icon: DeviceIcon },
-  { title: 'Replay-protected', desc: 'Every auth request uses a single-use nonce. A captured request cannot be replayed to get a second execution.', icon: ShieldIcon },
-  { title: 'Live status', desc: 'See exactly when the script is online, what version is current, and your own execution history.', icon: PulseIcon },
+const SPEC = [
+  { label: 'Auth', title: 'Server-verified handshake', desc: 'Every execution round-trips through the auth server first — not a static file anyone can download and reuse.', icon: LockIcon },
+  { label: 'Device', title: 'HWID binding', desc: 'Keys bind to a device on first use. Reset it yourself from your dashboard when you need to.', icon: DeviceIcon },
+  { label: 'Replay', title: 'Single-use nonce', desc: 'Every auth request is one-time. A captured request cannot be replayed for a second execution.', icon: ShieldIcon },
+  { label: 'Status', title: 'Live version + uptime', desc: 'See exactly when the script is online, what version is current, and your own execution history.', icon: PulseIcon },
 ];
 
 const FAQ = [
@@ -58,9 +59,9 @@ export default async function LandingPage() {
       <SiteNav />
 
       <main className="relative z-10">
-        {/* Hero */}
+        {/* Hero — asymmetric: copy left, live telemetry right */}
         <section className="mx-auto max-w-6xl px-6 pb-20 pt-28">
-          <div className="grid gap-12 lg:grid-cols-12 lg:items-center lg:gap-8">
+          <div className="grid gap-14 lg:grid-cols-12 lg:items-center lg:gap-10">
             <div className="lg:col-span-7">
               <div
                 className="animate-fade-up opacity-0 mb-6 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3.5 py-1.5 font-mono text-[11px] font-medium uppercase tracking-[0.14em] text-neutral-300"
@@ -76,17 +77,20 @@ export default async function LandingPage() {
               </div>
 
               <h1
-                className="animate-fade-up opacity-0 select-none text-[clamp(3.25rem,8vw,6rem)] font-black leading-[0.9] tracking-tighter text-ink drop-shadow-[0_2px_24px_rgba(10,10,12,0.08)]"
+                className="animate-fade-up opacity-0 select-none text-[clamp(3.25rem,7.5vw,5.75rem)] font-black leading-[0.9] tracking-tighter text-ink"
                 style={{ animationDelay: '80ms' }}
               >
-                EMBLEM
+                Built to run
+                <br />
+                <span className="text-signal">clean.</span>
               </h1>
 
               <p
-                className="animate-fade-up opacity-0 mt-5 max-w-md text-lg text-neutral-400"
+                className="animate-fade-up opacity-0 mt-6 max-w-md text-lg leading-relaxed text-neutral-400"
                 style={{ animationDelay: '160ms' }}
               >
-                A premium Roblox script with real key-based authentication, device binding, and real protection.
+                Emblem is engineered the way the graph on the right measures it — verified, not advertised. Real key
+                authentication, device binding, and performance work that shows up as a number, not a claim.
               </p>
 
               <div
@@ -136,13 +140,11 @@ export default async function LandingPage() {
               </p>
             </div>
 
-            {/* Right: stats + loadstring, offset from the text column rather than stacked centered beneath it */}
-            <div className="lg:col-span-5">
+            {/* Right: live telemetry — the signature element */}
+            <div className="animate-fade-up opacity-0 lg:col-span-5" style={{ animationDelay: '200ms' }}>
+              <TelemetryGraph />
               {showStats && (
-                <div
-                  className="animate-fade-up opacity-0 grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.08]"
-                  style={{ animationDelay: '160ms' }}
-                >
+                <div className="mt-4 grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.08]">
                   {[
                     { value: formatStat(stats.keys_issued), label: 'Keys issued' },
                     { value: formatStat(stats.verified_runs), label: 'Verified runs' },
@@ -156,22 +158,6 @@ export default async function LandingPage() {
                   ))}
                 </div>
               )}
-
-              <div
-                className="animate-fade-up opacity-0 mt-4 rounded-2xl border border-white/10 bg-black/60 p-5 text-left shadow-xl backdrop-blur"
-                style={{ animationDelay: '260ms' }}
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <pre className="min-w-0 flex-1 whitespace-pre-wrap break-all font-mono text-xs leading-relaxed text-white">
-                    <code>{exampleSnippet}</code>
-                  </pre>
-                  <CopyButton text={exampleSnippet} />
-                </div>
-              </div>
-
-              <p className="animate-fade-up opacity-0 mt-4 text-xs text-neutral-500" style={{ animationDelay: '320ms' }}>
-                No key-setting step — the loader shows a box to enter your key the moment it runs.
-              </p>
             </div>
           </div>
         </section>
@@ -190,25 +176,29 @@ export default async function LandingPage() {
           </div>
         </section>
 
-        {/* Features */}
+        {/* Spec sheet — technical facts stated like instrument readouts, not marketing cards */}
         <section className="mx-auto max-w-6xl px-6 py-24">
           <div className="grid gap-10 lg:grid-cols-12 lg:gap-16">
             <div className="lg:sticky lg:top-28 lg:col-span-4 lg:h-fit">
-              <p className="font-mono text-xs font-medium uppercase tracking-[0.2em] text-neutral-500">Why Emblem</p>
-              <h2 className="mt-3 text-3xl font-bold text-ink">Built to win</h2>
+              <p className="font-mono text-xs font-medium uppercase tracking-[0.2em] text-signal">Spec sheet</p>
+              <h2 className="mt-3 text-3xl font-bold text-ink">What's actually running</h2>
               <p className="mt-4 max-w-sm text-sm text-neutral-400">
                 Most script sellers ship a file and a Discord. Emblem ships a real backend — the same handshake your
                 bank's login form would use, adapted for Roblox.
               </p>
             </div>
             <div className="lg:col-span-8">
-              <div className="divide-y divide-white/[0.08] overflow-hidden rounded-2xl border border-white/10 bg-white/[0.02]">
-                {FEATURES.map((f) => (
-                  <div key={f.title} className="flex items-start gap-4 p-6 transition hover:bg-white/[0.02] sm:items-center">
+              <div className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.02] font-mono">
+                {SPEC.map((f, i) => (
+                  <div
+                    key={f.title}
+                    className={`flex items-start gap-5 p-6 transition hover:bg-white/[0.02] sm:items-center ${i !== 0 ? 'border-t border-white/[0.08]' : ''}`}
+                  >
+                    <span className="w-14 shrink-0 text-[10px] uppercase tracking-[0.14em] text-signal">{f.label}</span>
                     <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-white/[0.04] text-neutral-300">
                       <f.icon className="h-4 w-4" />
                     </div>
-                    <div>
+                    <div className="font-sans">
                       <h3 className="font-bold text-ink">{f.title}</h3>
                       <p className="mt-1 text-sm text-neutral-400">{f.desc}</p>
                     </div>
@@ -219,11 +209,34 @@ export default async function LandingPage() {
           </div>
         </section>
 
+        {/* Get started — the loadstring, on its own as an action rather than hero decoration */}
+        <section className="mx-auto max-w-6xl px-6 py-24">
+          <div className="grid gap-10 lg:grid-cols-12 lg:gap-16">
+            <div className="lg:sticky lg:top-28 lg:col-span-4 lg:h-fit">
+              <p className="font-mono text-xs font-medium uppercase tracking-[0.2em] text-signal">Get started</p>
+              <h2 className="mt-3 text-3xl font-bold text-ink">One line to run it</h2>
+              <p className="mt-4 max-w-sm text-sm text-neutral-400">
+                No key-setting step — the loader shows a box to enter your key the moment it runs.
+              </p>
+            </div>
+            <div className="lg:col-span-8">
+              <div className="rounded-2xl border border-white/10 bg-black/60 p-6 text-left shadow-xl backdrop-blur">
+                <div className="flex items-start justify-between gap-3">
+                  <pre className="min-w-0 flex-1 whitespace-pre-wrap break-all font-mono text-sm leading-relaxed text-white">
+                    <code>{exampleSnippet}</code>
+                  </pre>
+                  <CopyButton text={exampleSnippet} />
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {plans.length > 0 && (
           <section className="mx-auto max-w-6xl px-6 py-24">
             <div className="grid gap-10 lg:grid-cols-12 lg:gap-16">
               <div className="lg:sticky lg:top-28 lg:col-span-4 lg:h-fit">
-                <p className="font-mono text-xs font-medium uppercase tracking-[0.2em] text-neutral-500">Get access</p>
+                <p className="font-mono text-xs font-medium uppercase tracking-[0.2em] text-signal">Get access</p>
                 <h2 className="mt-3 text-3xl font-bold text-ink">Pricing</h2>
                 <p className="mt-4 max-w-sm text-sm text-neutral-400">
                   One-time payment, no subscription. Every plan includes the same protected delivery — key auth, HWID
@@ -236,7 +249,7 @@ export default async function LandingPage() {
               <div className="lg:col-span-8">
                 <div className="grid gap-5 sm:grid-cols-3">
                   {plans.map((p) => (
-                    <div key={p.id} className="rounded-2xl border border-white/10 bg-white/[0.045] p-6 shadow-[0_1px_0_rgba(255,255,255,0.06)_inset,0_20px_40px_-24px_rgba(10,10,12,0.25)] backdrop-blur-md transition hover:-translate-y-1 hover:shadow-[0_1px_0_rgba(255,255,255,0.06)_inset,0_28px_50px_-20px_rgba(10,10,12,0.32)]">
+                    <div key={p.id} className="rounded-2xl border border-white/10 bg-white/[0.045] p-6 shadow-[0_1px_0_rgba(255,255,255,0.06)_inset,0_20px_40px_-24px_rgba(10,10,12,0.25)] backdrop-blur-md transition hover:-translate-y-1 hover:border-signal/30 hover:shadow-[0_1px_0_rgba(255,255,255,0.06)_inset,0_28px_50px_-20px_rgba(10,10,12,0.32)]">
                       <div className="font-bold text-ink">{p.name}</div>
                       <div className="mt-2 font-mono text-3xl font-bold tracking-tight text-ink">{formatPrice(p.price_cents, p.currency)}</div>
                       <div className="mt-1 font-mono text-xs uppercase tracking-wide text-neutral-500">{p.duration_days ? `${p.duration_days} days` : 'Lifetime'}</div>
@@ -251,7 +264,7 @@ export default async function LandingPage() {
         <section className="mx-auto max-w-6xl px-6 py-24">
           <div className="grid gap-10 lg:grid-cols-12 lg:gap-16">
             <div className="lg:sticky lg:top-28 lg:col-span-4 lg:h-fit">
-              <p className="font-mono text-xs font-medium uppercase tracking-[0.2em] text-neutral-500">Questions</p>
+              <p className="font-mono text-xs font-medium uppercase tracking-[0.2em] text-signal">Questions</p>
               <h2 className="mt-3 text-3xl font-bold text-ink">FAQ</h2>
               <p className="mt-4 max-w-sm text-sm text-neutral-400">
                 Can't find what you're looking for? <Link href="/discord" className="text-ink underline underline-offset-4 hover:no-underline">Ask in Discord</Link>.

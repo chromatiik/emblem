@@ -1,10 +1,25 @@
 import type { Metadata } from 'next';
+import { Inter, JetBrains_Mono } from 'next/font/google';
 
 import { headers } from 'next/headers';
 import './globals.css';
 import { isIpBanned, logVisit } from '@/lib/ipban';
 import { getIpFromHeaders } from '@/lib/audit';
 import { getCurrentUser } from '@/lib/auth';
+
+const inter = Inter({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700', '800', '900'],
+  variable: '--font-inter',
+  display: 'swap',
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-mono',
+  display: 'swap',
+});
 
 
 
@@ -58,7 +73,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
   if (recentlyChecked) {
     return (
-      <html lang="en" className={""}>
+      <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable}`}>
         <body className="bg-paper font-sans text-ink antialiased">{children}</body>
       </html>
     );
@@ -71,7 +86,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
   if (banned) {
     return (
-      <html lang="en" className={""}>
+      <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable}`}>
         <body className="flex min-h-screen items-center justify-center bg-paper px-6 font-sans text-ink antialiased">
           <div className="max-w-sm text-center">
             <h1 className="text-2xl font-bold">Access denied</h1>
@@ -95,7 +110,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   }
 
   return (
-    <html lang="en" className={""}>
+    <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable}`}>
       <body className="bg-paper font-sans text-ink antialiased">{children}</body>
     </html>
   );

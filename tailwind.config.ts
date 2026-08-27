@@ -10,6 +10,8 @@ const config: Config = {
         muted: '#9a9aa4',
         line: 'rgba(255,255,255,0.09)',
         metalBase: '#101114',
+        signal: '#D4A24C',
+        'signal-dim': '#8a6b30',
       },
       fontFamily: {
         sans: ['var(--font-inter)', 'ui-sans-serif', 'system-ui', '-apple-system', 'Segoe UI', 'Roboto', 'sans-serif'],
