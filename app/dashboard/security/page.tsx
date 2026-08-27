@@ -63,7 +63,8 @@ export default function SecurityPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-bold text-ink">Security</h1>
+        <p className="font-mono text-xs font-medium uppercase tracking-[0.2em] text-signal">Account</p>
+        <h1 className="mt-2 text-2xl font-bold text-ink">Security</h1>
         <p className="mt-1 text-sm text-neutral-400">Manage your password and active sessions.</p>
       </div>
 
@@ -97,7 +98,7 @@ export default function SecurityPage() {
           <button
             type="submit"
             disabled={saving}
-            className="rounded-lg bg-ink px-5 py-2.5 text-sm font-bold text-paper transition hover:bg-neutral-200 disabled:opacity-50"
+            className="rounded-lg bg-signal px-5 py-2.5 text-sm font-bold text-paper transition hover:bg-signal/90 disabled:opacity-50"
           >
             {saving ? 'Updating…' : 'Update password'}
           </button>
@@ -119,10 +120,10 @@ export default function SecurityPage() {
               <div key={s.id} className="flex items-center justify-between rounded-lg border border-white/[0.06] bg-white/[0.02] px-4 py-3">
                 <div>
                   <div className="text-sm text-neutral-200">{s.userAgent || 'Unknown device'}</div>
-                  <div className="text-xs text-neutral-400">Signed in {new Date(s.createdAt).toLocaleString()}</div>
+                  <div className="font-mono text-xs text-neutral-500">Signed in {new Date(s.createdAt).toLocaleString()}</div>
                 </div>
                 {s.isCurrent && (
-                  <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-0.5 text-[10px] font-bold text-emerald-400">
+                  <span className="rounded-full border border-signal/30 bg-signal/10 px-2.5 py-0.5 font-mono text-[10px] font-bold text-signal">
                     THIS DEVICE
                   </span>
                 )}
@@ -136,4 +137,4 @@ export default function SecurityPage() {
 }
 
 const inputClass =
-  'w-full rounded-lg border border-white/10 bg-white/[0.04] px-3.5 py-2.5 text-sm text-ink outline-none transition focus:border-ink/30 focus:ring-2 focus:ring-ink/10';
+  'w-full rounded-lg border border-white/10 bg-white/[0.04] px-3.5 py-2.5 text-sm text-ink outline-none transition focus:border-signal/40 focus:ring-2 focus:ring-signal/10';

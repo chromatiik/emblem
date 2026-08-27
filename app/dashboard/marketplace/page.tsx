@@ -96,7 +96,7 @@ export default function DashboardMarketplacePage() {
 
   return (
     <div>
-      <p className="font-mono text-xs font-medium uppercase tracking-[0.2em] text-neutral-500">Your account</p>
+      <p className="font-mono text-xs font-medium uppercase tracking-[0.2em] text-signal">Your account</p>
       <h1 className="mt-2 text-2xl font-bold text-ink">Marketplace</h1>
       <p className="mt-1 text-sm text-neutral-400">
         Upload configs for other Emblem users to find. Browse everyone else's at{' '}
@@ -138,7 +138,7 @@ export default function DashboardMarketplacePage() {
             <button
               type="submit"
               disabled={submitting}
-              className="w-full rounded-xl bg-ink py-3 text-sm font-bold text-paper transition hover:bg-neutral-200 disabled:opacity-50"
+              className="w-full rounded-xl bg-signal py-3 text-sm font-bold text-paper transition hover:bg-signal/90 disabled:opacity-50"
             >
               {submitting ? 'Uploading…' : 'Upload'}
             </button>
@@ -188,7 +188,7 @@ export default function DashboardMarketplacePage() {
 }
 
 const inputClass =
-  'w-full rounded-lg border border-white/10 bg-white/[0.04] px-3.5 py-2.5 text-sm text-ink outline-none focus:border-white/25';
+  'w-full rounded-lg border border-white/10 bg-white/[0.04] px-3.5 py-2.5 text-sm text-ink outline-none focus:border-signal/40';
 
 function Field({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
   return (

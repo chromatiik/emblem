@@ -36,7 +36,7 @@ export function PricingClient() {
 
   return (
     <main className="relative z-10 mx-auto max-w-5xl px-6 py-24">
-      <p className="text-center font-mono text-xs font-medium uppercase tracking-[0.2em] text-neutral-500">Get access</p>
+      <p className="text-center font-mono text-xs font-medium uppercase tracking-[0.2em] text-signal">Get access</p>
       <h1 className="mt-3 text-center text-4xl font-black text-ink">Pricing</h1>
       <p className="mx-auto mt-3 max-w-md text-center text-neutral-400">
         Every plan includes the same protected delivery — key auth, HWID binding, replay protection.
@@ -63,11 +63,11 @@ export function PricingClient() {
             <div
               key={p.id}
               className={`relative flex flex-col rounded-2xl border p-7 backdrop-blur ${
-                i === 1 ? 'border-white/20 bg-white/[0.045]' : 'border-white/10 bg-white/[0.03]'
+                i === 1 ? 'border-signal/30 bg-signal/[0.04]' : 'border-white/10 bg-white/[0.03]'
               }`}
             >
               {i === 1 && (
-                <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-ink px-3 py-1 font-mono text-[10px] font-bold uppercase tracking-wide text-paper">
+                <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-signal px-3 py-1 font-mono text-[10px] font-bold uppercase tracking-wide text-paper">
                   Popular
                 </span>
               )}
@@ -79,7 +79,7 @@ export function PricingClient() {
                 <ul className="mt-4 space-y-2 text-sm text-neutral-300">
                   {p.features.map((f) => (
                     <li key={f} className="flex items-start gap-2">
-                      <span className="mt-0.5 text-ink">✓</span> {f}
+                      <span className="mt-0.5 text-signal">✓</span> {f}
                     </li>
                   ))}
                 </ul>
@@ -87,7 +87,7 @@ export function PricingClient() {
               <button
                 onClick={() => buy(p.id)}
                 className={`mt-6 rounded-xl py-3 text-sm font-bold transition ${
-                  i === 1 ? 'bg-ink text-paper hover:bg-neutral-200' : 'border border-white/15 text-ink hover:bg-white/[0.06]'
+                  i === 1 ? 'bg-signal text-paper hover:bg-signal/90' : 'border border-white/15 text-ink hover:bg-white/[0.06]'
                 }`}
               >
                 Get this plan

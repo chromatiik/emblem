@@ -156,8 +156,8 @@ function CheckoutInner() {
     <main className="relative z-10 mx-auto grid max-w-5xl gap-10 px-6 py-16 lg:grid-cols-[320px_1fr]">
       {/* Order summary sidebar */}
       <aside>
-        <p className="text-xs font-semibold uppercase tracking-wider text-neutral-500">Order total</p>
-        <p className="mt-1 text-4xl font-black text-ink">{formatPrice(plan.price_cents, plan.currency)}</p>
+        <p className="font-mono text-xs font-semibold uppercase tracking-wider text-signal">Order total</p>
+        <p className="mt-1 font-mono text-4xl font-black tracking-tight text-ink">{formatPrice(plan.price_cents, plan.currency)}</p>
 
         <div className="mt-6 flex items-center justify-between border-t border-white/10 pt-4 text-sm">
           <div>
@@ -191,7 +191,7 @@ function CheckoutInner() {
         {step === 'order' && (
           <div className="space-y-6">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-neutral-500">Payment</p>
+              <p className="font-mono text-xs font-semibold uppercase tracking-wider text-signal">Payment</p>
               <div className="mt-3 space-y-2">
                 <PaymentOption
                   selected={method === 'card'}
@@ -222,7 +222,7 @@ function CheckoutInner() {
                       onClick={() => setCryptoCurrency(c.code)}
                       className={`rounded-lg border px-3 py-1.5 text-xs font-semibold transition ${
                         cryptoCurrency === c.code
-                          ? 'border-ink bg-ink text-paper'
+                          ? 'border-signal bg-signal text-paper'
                           : 'border-white/10 text-neutral-300 hover:bg-white/[0.05]'
                       }`}
                     >
@@ -234,7 +234,7 @@ function CheckoutInner() {
             </div>
 
             <label className="flex items-start gap-2.5 text-sm text-neutral-300">
-              <input type="checkbox" checked={agreed} onChange={(e) => setAgreed(e.target.checked)} className="mt-0.5" />
+              <input type="checkbox" checked={agreed} onChange={(e) => setAgreed(e.target.checked)} className="mt-0.5 accent-signal" />
               I have read and agree to Emblem&apos;s{' '}
               <a href="/terms" target="_blank" rel="noopener noreferrer" className="text-ink underline" onClick={(e) => e.stopPropagation()}>
                 Terms of Service
@@ -245,7 +245,7 @@ function CheckoutInner() {
             <button
               onClick={handleContinue}
               disabled={submitting}
-              className="w-full rounded-xl bg-ink py-3.5 text-sm font-bold text-paper transition hover:bg-neutral-200 disabled:opacity-50"
+              className="w-full rounded-xl bg-signal py-3.5 text-sm font-bold text-paper transition hover:bg-signal/90 disabled:opacity-50"
             >
               {submitting ? 'Please wait…' : 'Continue to Payment'}
             </button>
@@ -256,7 +256,7 @@ function CheckoutInner() {
         {step === 'crypto-pay' && cryptoPay && (
           <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
             <div className="flex items-center gap-2 text-sm text-neutral-300">
-              <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-400" />
+              <span className="h-2 w-2 animate-pulse rounded-full bg-signal" />
               Waiting for payment. This page updates automatically.
             </div>
 
@@ -267,15 +267,15 @@ function CheckoutInner() {
 
             <div className="mt-6 flex items-center justify-between gap-3 rounded-lg border border-white/10 bg-white/[0.02] px-4 py-3">
               <div className="min-w-0">
-                <p className="text-xs text-neutral-500">Address</p>
+                <p className="font-mono text-xs text-neutral-500">Address</p>
                 <p className="truncate font-mono text-sm text-ink">{cryptoPay.payAddress}</p>
               </div>
               <CopyButton text={cryptoPay.payAddress} />
             </div>
 
-            <div className="mt-4 flex items-center justify-between rounded-lg border border-white/10 bg-white/[0.02] px-4 py-3">
-              <p className="text-xs uppercase text-neutral-500">Send exact amount</p>
-              <p className="font-mono text-sm font-semibold text-ink">
+            <div className="mt-4 flex items-center justify-between rounded-lg border border-signal/20 bg-signal/[0.06] px-4 py-3">
+              <p className="font-mono text-xs uppercase text-neutral-400">Send exact amount</p>
+              <p className="font-mono text-sm font-semibold text-signal">
                 {cryptoPay.payAmount} {cryptoPay.payCurrency.toUpperCase()}
               </p>
             </div>
@@ -298,7 +298,7 @@ function CheckoutInner() {
             </ol>
             <a
               href="/discord"
-              className="mt-6 inline-block rounded-xl bg-ink px-6 py-3 text-sm font-bold text-paper transition hover:bg-neutral-200"
+              className="mt-6 inline-block rounded-xl bg-signal px-6 py-3 text-sm font-bold text-paper transition hover:bg-signal/90"
             >
               Join Discord
             </a>
@@ -306,12 +306,12 @@ function CheckoutInner() {
         )}
 
         {step === 'done' && (
-          <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/[0.06] p-8 text-center">
+          <div className="rounded-2xl border border-signal/25 bg-signal/[0.06] p-8 text-center">
             <p className="text-lg font-semibold text-ink">Payment received.</p>
             <p className="mt-1 text-sm text-neutral-400">Your key has been issued — check your dashboard.</p>
             <a
               href="/dashboard"
-              className="mt-6 inline-block rounded-xl bg-ink px-6 py-3 text-sm font-bold text-paper transition hover:bg-neutral-200"
+              className="mt-6 inline-block rounded-xl bg-signal px-6 py-3 text-sm font-bold text-paper transition hover:bg-signal/90"
             >
               Go to dashboard
             </a>
@@ -327,7 +327,7 @@ function StepPip({ active, done, label, number }: { active: boolean; done: boole
     <div className={`flex items-center gap-2 ${active || done ? 'text-ink' : ''}`}>
       <span
         className={`flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold ${
-          done ? 'bg-emerald-500 text-paper' : active ? 'bg-ink text-paper' : 'border border-white/15 text-neutral-500'
+          done ? 'bg-signal text-paper' : active ? 'bg-signal text-paper' : 'border border-white/15 text-neutral-500'
         }`}
       >
         {done ? '✓' : number}
@@ -353,7 +353,7 @@ function PaymentOption({
       type="button"
       onClick={onSelect}
       className={`flex w-full items-center justify-between rounded-xl border px-4 py-3.5 text-left transition ${
-        selected ? 'border-ink bg-white/[0.04]' : 'border-white/10 hover:bg-white/[0.03]'
+        selected ? 'border-signal/40 bg-signal/[0.05]' : 'border-white/10 hover:bg-white/[0.03]'
       }`}
     >
       <div>
@@ -362,7 +362,7 @@ function PaymentOption({
       </div>
       <span
         className={`flex h-4 w-4 items-center justify-center rounded-full border ${
-          selected ? 'border-ink bg-ink' : 'border-white/20'
+          selected ? 'border-signal bg-signal' : 'border-white/20'
         }`}
       >
         {selected && <span className="h-1.5 w-1.5 rounded-full bg-paper" />}
