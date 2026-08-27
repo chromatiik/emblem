@@ -24,7 +24,8 @@ interface WeaoExploit {
  * shows nothing because of a third party.
  */
 export async function getWorkingExecutors(): Promise<string[]> {
-  const FALLBACK = ['Xeno', 'Solara', 'Wave', 'Delta'];
+  const FALLBACK = ['Xeno', 'Solara', 'Wave', 'Delta', 'Zorara', 'Cryptic'];
+  const MIN_DISPLAY = 6;
 
   try {
     const res = await fetch('https://weao.xyz/api/status/exploits', {
@@ -40,10 +41,28 @@ export async function getWorkingExecutors(): Promise<string[]> {
     const working = data
       .filter((e) => typeof e.suncPercentage === 'number' && e.suncPercentage > 90 && e.updateStatus && e.platform === 'Windows')
       .sort((a, b) => (b.suncPercentage ?? 0) - (a.suncPercentage ?? 0))
-      .slice(0, 8)
+      .slice(0, 10)
       .map((e) => e.title);
 
-    return working.length > 0 ? working : FALLBACK;
+    if (working.length === 0) return FALLBACK;
+
+    // The 90%+ bar is genuinely strict and can legitimately have very few
+    // live matches at any given moment (e.g. right after a Roblox update
+    // while executors are still catching up) - that's real data, not a
+    // bug. But showing only 1-2 names looks broken and can't fill a
+    // marquee's width, so pad the shortfall with the curated fallback list
+    // rather than lowering the threshold - every name shown either is
+    // verified 90%+ right now, or is from the trusted static list, never a
+    // lower-percentage result being misrepresented as meeting the bar the
+    // page states next to it.
+    if (working.length < MIN_DISPLAY) {
+      for (const name of FALLBACK) {
+        if (working.length >= MIN_DISPLAY) break;
+        if (!working.includes(name)) working.push(name);
+      }
+    }
+
+    return working;
   } catch {
     return FALLBACK;
   }

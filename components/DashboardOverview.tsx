@@ -28,6 +28,7 @@ export function DashboardOverview() {
   const [resettingId, setResettingId] = useState<string | null>(null);
   const [claimInput, setClaimInput] = useState('');
   const [claiming, setClaiming] = useState(false);
+  const [claimOpen, setClaimOpen] = useState(false);
 
   async function load() {
     const res = await fetch('/api/keys');
@@ -56,6 +57,7 @@ export function DashboardOverview() {
       }
       toast.push('Key claimed and bound to your account.', 'success');
       setClaimInput('');
+      setClaimOpen(false);
       load();
     } finally {
       setClaiming(false);
@@ -83,33 +85,47 @@ export function DashboardOverview() {
 
   return (
     <>
-      <div className="mt-8 grid gap-4 sm:grid-cols-[repeat(2,minmax(0,1fr))_minmax(0,1.6fr)]">
+      {/* Stat readouts + claim toggle sit in one row instead of a stat
+          block beside a form always taking up space - the claim form is
+          a rare action, not something that needs permanent screen real
+          estate next to the keys someone already has. */}
+      <div className="mt-8 flex flex-wrap items-center gap-4">
         {keys !== null && keys.length > 0 && (
           <>
-            <div className="rounded-2xl border border-white/10 bg-white/[0.02] px-6 py-5">
-              <div className="font-mono text-2xl font-bold tabular-nums text-signal">{activeCount}</div>
-              <div className="mt-1 font-mono text-[10px] uppercase tracking-[0.14em] text-neutral-500">Active keys</div>
+            <div className="rounded-2xl border border-white/10 bg-white/[0.02] px-6 py-4">
+              <span className="font-mono text-2xl font-bold tabular-nums text-signal">{activeCount}</span>
+              <span className="ml-2 font-mono text-[10px] uppercase tracking-[0.14em] text-neutral-500">Active</span>
             </div>
-            <div className="rounded-2xl border border-white/10 bg-white/[0.02] px-6 py-5">
-              <div className="font-mono text-2xl font-bold tabular-nums text-ink">{keys.length}</div>
-              <div className="mt-1 font-mono text-[10px] uppercase tracking-[0.14em] text-neutral-500">Total keys</div>
+            <div className="rounded-2xl border border-white/10 bg-white/[0.02] px-6 py-4">
+              <span className="font-mono text-2xl font-bold tabular-nums text-ink">{keys.length}</span>
+              <span className="ml-2 font-mono text-[10px] uppercase tracking-[0.14em] text-neutral-500">Total</span>
             </div>
           </>
         )}
+        <button
+          onClick={() => setClaimOpen((v) => !v)}
+          className={`ml-auto rounded-full border px-4 py-2 text-xs font-bold transition ${
+            claimOpen ? 'border-signal/40 bg-signal/10 text-signal' : 'border-white/10 text-neutral-300 hover:bg-white/[0.04]'
+          }`}
+        >
+          {claimOpen ? 'Cancel' : 'Have a key already?'}
+        </button>
+      </div>
 
-        <form onSubmit={claimKey} className={`rounded-2xl border border-white/10 bg-white/[0.02] p-5 ${keys && keys.length > 0 ? '' : 'sm:col-span-3'}`}>
-          <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-neutral-500">Have a key already?</p>
-          <div className="mt-2.5 flex gap-2">
+      {claimOpen && (
+        <form onSubmit={claimKey} className="mt-4 rounded-2xl border border-signal/20 bg-signal/[0.03] p-5">
+          <div className="flex gap-2">
             <input
               value={claimInput}
               onChange={(e) => setClaimInput(e.target.value)}
               placeholder="EMBLEM-XXXX-XXXX-XXXX-XXXX"
+              autoFocus
               className="min-w-0 flex-1 rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2 font-mono text-xs text-ink outline-none focus:border-signal/40"
             />
             <button
               type="submit"
               disabled={claiming}
-              className="shrink-0 rounded-lg bg-ink px-4 py-2 text-xs font-bold text-paper transition hover:bg-neutral-200 disabled:opacity-50"
+              className="shrink-0 rounded-lg bg-signal px-4 py-2 text-xs font-bold text-paper transition hover:bg-signal/90 disabled:opacity-50"
             >
               {claiming ? 'Claiming…' : 'Claim'}
             </button>
@@ -118,25 +134,30 @@ export function DashboardOverview() {
             Binds it to this account permanently. A key already claimed by someone else can&apos;t be reclaimed.
           </p>
         </form>
-      </div>
+      )}
 
+      {/* Keys as spec-sheet rows rather than a card grid - key + status at
+          a glance on the left, the same detail fields as before but laid
+          out inline as compact mono readouts instead of a 2-column grid
+          of boxes, which is what actually differs from before, not just
+          the colors on the same layout. */}
       {keys === null ? (
-        <div className="mt-4 grid gap-4 sm:grid-cols-2">
+        <div className="mt-6 space-y-3">
           {[0, 1].map((i) => (
-            <div key={i} className="h-44 animate-pulse rounded-2xl border border-white/10 bg-white/[0.025]" />
+            <div key={i} className="h-24 animate-pulse rounded-2xl border border-white/10 bg-white/[0.025]" />
           ))}
         </div>
       ) : keys.length === 0 ? (
-        <div className="mt-4 rounded-2xl border border-white/10 bg-white/[0.035] p-10 text-center">
+        <div className="mt-6 rounded-2xl border border-white/10 bg-white/[0.035] p-10 text-center">
           <p className="text-neutral-400">No keys yet.</p>
-          <a href="/pricing" className="mt-4 inline-block rounded-xl bg-ink px-5 py-2.5 text-sm font-bold text-paper hover:bg-neutral-200">
+          <a href="/pricing" className="mt-4 inline-block rounded-xl bg-signal px-5 py-2.5 text-sm font-bold text-paper hover:bg-signal/90">
             Get a key
           </a>
         </div>
       ) : (
-        <div className="mt-4 grid gap-4 sm:grid-cols-2">
-          {keys.map((k) => (
-            <KeyCard key={k.id} k={k} onReset={() => resetHwid(k.id)} resetting={resettingId === k.id} />
+        <div className="mt-6 overflow-hidden rounded-2xl border border-white/10">
+          {keys.map((k, i) => (
+            <KeyRowItem key={k.id} k={k} first={i === 0} onReset={() => resetHwid(k.id)} resetting={resettingId === k.id} />
           ))}
         </div>
       )}
@@ -144,60 +165,55 @@ export function DashboardOverview() {
   );
 }
 
-function KeyCard({ k, onReset, resetting }: { k: KeyRow; onReset: () => void; resetting: boolean }) {
+function KeyRowItem({ k, first, onReset, resetting }: { k: KeyRow; first: boolean; onReset: () => void; resetting: boolean }) {
   const isActive = k.status === 'active';
 
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/[0.035] p-6 backdrop-blur">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <div className="min-w-0 flex-1">
+    <div className={`bg-white/[0.02] p-5 ${!first ? 'border-t border-white/[0.08]' : ''}`}>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex min-w-0 items-center gap-3">
+          <span className={`h-2 w-2 shrink-0 rounded-full ${isActive ? 'bg-signal' : 'bg-red-400'}`} />
           {k.key ? (
-            <div className="flex items-center gap-2">
-              <code className="break-all font-mono text-sm text-ink">{k.key}</code>
+            <div className="flex min-w-0 items-center gap-2">
+              <code className="truncate font-mono text-sm text-ink">{k.key}</code>
               <CopyButton text={k.key} />
             </div>
           ) : (
-            <code className="break-all font-mono text-sm text-neutral-400" title="This key was generated before full-key display was added — contact support if you need it re-sent.">
+            <code className="truncate font-mono text-sm text-neutral-400" title="This key was generated before full-key display was added — contact support if you need it re-sent.">
               {k.key_preview}
             </code>
           )}
         </div>
-        <span
-          className={`flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wide ${
-            isActive ? 'border-signal/30 bg-signal/10 text-signal' : 'border-red-500/30 bg-red-500/10 text-red-400'
-          }`}
-        >
-          <span className={`h-1.5 w-1.5 rounded-full ${isActive ? 'bg-signal' : 'bg-red-400'}`} />
-          {k.status}
-        </span>
+        {k.hwid_bound && (
+          <button
+            onClick={onReset}
+            disabled={resetting}
+            className="shrink-0 rounded-lg border border-white/10 px-3 py-1.5 text-xs font-semibold text-neutral-300 transition hover:border-signal/30 hover:bg-white/[0.04] disabled:opacity-50"
+          >
+            {resetting ? 'Resetting…' : 'Reset device'}
+          </button>
+        )}
       </div>
 
-      <dl className="mt-4 grid grid-cols-2 gap-x-4 gap-y-3 border-t border-white/[0.06] pt-4 text-sm">
-        <Row label="Device">{k.hwid_bound ? 'Bound' : 'Not yet bound'}</Row>
-        <Row label="Uses">{k.usage_count}</Row>
-        <Row label="Last used">{k.last_used_at ? new Date(k.last_used_at).toLocaleDateString() : 'Never'}</Row>
-        <Row label="Roblox user">{k.last_roblox_username || '—'}</Row>
-        <Row label="Expires">{k.expires_at ? new Date(k.expires_at).toLocaleDateString() : 'Never'}</Row>
-      </dl>
-
-      {k.hwid_bound && (
-        <button
-          onClick={onReset}
-          disabled={resetting}
-          className="mt-5 w-full rounded-lg border border-white/10 bg-white/[0.04] py-2 text-xs font-semibold text-ink transition hover:border-signal/30 hover:bg-white/[0.05] disabled:opacity-50"
-        >
-          {resetting ? 'Resetting…' : 'Reset device'}
-        </button>
-      )}
-    </div>
-  );
-}
-
-function Row({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div>
-      <dt className="font-mono text-[10px] uppercase tracking-[0.08em] text-neutral-500">{label}</dt>
-      <dd className="mt-0.5 truncate font-medium text-neutral-200">{children}</dd>
+      <div className="mt-3 flex flex-wrap gap-x-6 gap-y-1.5 font-mono text-xs text-neutral-500">
+        <span>
+          <span className="text-neutral-600">device</span> <span className="text-neutral-300">{k.hwid_bound ? 'bound' : 'unbound'}</span>
+        </span>
+        <span>
+          <span className="text-neutral-600">uses</span> <span className="text-neutral-300">{k.usage_count}</span>
+        </span>
+        <span>
+          <span className="text-neutral-600">last used</span>{' '}
+          <span className="text-neutral-300">{k.last_used_at ? new Date(k.last_used_at).toLocaleDateString() : 'never'}</span>
+        </span>
+        <span>
+          <span className="text-neutral-600">roblox</span> <span className="text-neutral-300">{k.last_roblox_username || '—'}</span>
+        </span>
+        <span>
+          <span className="text-neutral-600">expires</span>{' '}
+          <span className="text-neutral-300">{k.expires_at ? new Date(k.expires_at).toLocaleDateString() : 'never'}</span>
+        </span>
+      </div>
     </div>
   );
 }

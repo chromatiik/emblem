@@ -167,7 +167,19 @@ export default async function LandingPage() {
           <p className="text-center text-[11px] font-semibold uppercase tracking-wider text-neutral-400">Currently working · sUNC 90%+</p>
           <div className="relative mt-4 overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_10%,black_90%,transparent)]">
             <div className="flex w-max animate-marquee items-center gap-16">
-              {[...executors, ...executors, ...executors, ...executors, ...executors, ...executors].map((e, i) => (
+              {(() => {
+                // A fixed duplication count can leave the total content
+                // narrower than the viewport when the source list is
+                // short, which breaks the marquee visually - it just sits
+                // in a small portion of the row instead of spanning it.
+                // Scale the repeat count to the list length so there's
+                // always enough total width, and keep it even (the
+                // translateX(-50%) keyframe needs an exact half/half split
+                // to loop seamlessly).
+                const minItems = 24;
+                const repeats = Math.max(2, Math.ceil(minItems / Math.max(executors.length, 1) / 2) * 2);
+                return Array.from({ length: repeats }, () => executors).flat();
+              })().map((e, i) => (
                 <span key={i} className="whitespace-nowrap text-lg font-bold text-neutral-200">
                   {e}
                 </span>
