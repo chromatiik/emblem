@@ -104,7 +104,7 @@ export function DashboardOverview() {
         )}
         <button
           onClick={() => setClaimOpen((v) => !v)}
-          className={`ml-auto rounded-full border px-4 py-2 text-xs font-bold transition ${
+          className={`rounded-full border px-4 py-2 text-xs font-bold transition ${
             claimOpen ? 'border-signal/40 bg-signal/10 text-signal' : 'border-white/10 text-neutral-300 hover:bg-white/[0.04]'
           }`}
         >

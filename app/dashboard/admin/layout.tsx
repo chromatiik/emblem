@@ -52,21 +52,23 @@ export default async function DashboardAdminLayout({ children }: { children: Rea
               </span>
               <span className="font-mono text-[11px] font-bold uppercase tracking-[0.14em] text-neutral-400">Admin panel</span>
             </div>
-            <nav className="flex gap-4 overflow-x-auto pb-1 lg:block lg:space-y-6 lg:overflow-visible lg:pb-0">
-              {LINK_GROUPS.map((group) => (
-                <div key={group.label} className="shrink-0 lg:shrink lg:space-y-0.5">
-                  <p className="hidden px-2.5 font-mono text-[10px] font-semibold uppercase tracking-[0.1em] text-neutral-600 lg:block">
-                    {group.label}
-                  </p>
-                  <div className="flex gap-1 lg:mt-1.5 lg:flex-col lg:gap-0.5">
-                    {group.links.map((link) => (
-                      <AdminSidebarLink key={link.href} href={link.href} exact={link.exact} icon={link.icon}>
-                        {link.label}
-                      </AdminSidebarLink>
-                    ))}
+            <nav className="relative -mx-6 overflow-hidden px-6 [mask-image:linear-gradient(to_right,black_88%,transparent)] lg:mx-0 lg:overflow-visible lg:px-0 lg:[mask-image:none]">
+              <div className="flex gap-4 overflow-x-auto pb-1 lg:block lg:space-y-6 lg:overflow-visible lg:pb-0">
+                {LINK_GROUPS.map((group) => (
+                  <div key={group.label} className="shrink-0 lg:shrink lg:space-y-0.5">
+                    <p className="hidden px-2.5 font-mono text-[10px] font-semibold uppercase tracking-[0.1em] text-neutral-600 lg:block">
+                      {group.label}
+                    </p>
+                    <div className="flex gap-1 lg:mt-1.5 lg:flex-col lg:gap-0.5">
+                      {group.links.map((link) => (
+                        <AdminSidebarLink key={link.href} href={link.href} exact={link.exact} icon={link.icon}>
+                          {link.label}
+                        </AdminSidebarLink>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </nav>
           </div>
         </aside>
