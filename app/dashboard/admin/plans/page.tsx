@@ -112,7 +112,7 @@ export default function AdminPlansPage() {
 
   return (
     <div>
-      <p className="font-mono text-xs font-medium uppercase tracking-[0.2em] text-neutral-500">Admin</p>
+      <p className="font-mono text-xs font-medium uppercase tracking-[0.2em] text-signal">Admin</p>
       <h1 className="mt-2 text-2xl font-bold text-ink">Pricing plans</h1>
       <p className="mt-1 text-sm text-neutral-400">
         These prices are what customers see on <a href="/pricing" className="text-ink underline">/pricing</a> and pay
@@ -175,7 +175,7 @@ export default function AdminPlansPage() {
         <button
           type="submit"
           disabled={creating}
-          className="rounded-lg bg-ink px-5 py-2.5 text-sm font-bold text-paper transition hover:bg-neutral-200 disabled:opacity-50"
+          className="rounded-lg bg-signal px-5 py-2.5 text-sm font-bold text-paper transition hover:bg-signal/90 disabled:opacity-50"
         >
           {creating ? 'Creating…' : 'Add plan'}
         </button>

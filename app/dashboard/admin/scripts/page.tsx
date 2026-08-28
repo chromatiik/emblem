@@ -128,7 +128,7 @@ export default function AdminScriptsPage() {
   return (
     <div>
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="font-mono text-xs font-medium uppercase tracking-[0.2em] text-neutral-500">Admin</p>
+        <p className="font-mono text-xs font-medium uppercase tracking-[0.2em] text-signal">Admin</p>
         <h1 className="mt-2 text-2xl font-bold text-ink">Script versions</h1>
         <button
           onClick={emergencyRevoke}
@@ -186,7 +186,7 @@ export default function AdminScriptsPage() {
         <button
           type="submit"
           disabled={uploading}
-          className="rounded-lg bg-ink px-5 py-2.5 text-sm font-bold text-paper transition hover:bg-neutral-200 disabled:opacity-50"
+          className="rounded-lg bg-signal px-5 py-2.5 text-sm font-bold text-paper transition hover:bg-signal/90 disabled:opacity-50"
         >
           {uploading ? 'Uploading…' : 'Upload'}
         </button>
@@ -199,7 +199,7 @@ export default function AdminScriptsPage() {
               <div className="flex items-center gap-2">
                 <span className="font-bold text-ink">v{v.version}</span>
                 {v.is_enabled && (
-                  <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-[10px] font-bold text-emerald-400">
+                  <span className="rounded-full border border-signal/30 bg-signal/10 px-2 py-0.5 text-[10px] font-bold text-signal">
                     ACTIVE
                   </span>
                 )}

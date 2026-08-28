@@ -6,10 +6,12 @@ import { usePathname } from 'next/navigation';
 export function AdminSidebarLink({
   href,
   exact,
+  icon,
   children,
 }: {
   href: string;
   exact?: boolean;
+  icon?: React.ReactNode;
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
@@ -18,10 +20,11 @@ export function AdminSidebarLink({
   return (
     <Link
       href={href}
-      className={`whitespace-nowrap rounded-lg px-2.5 py-1.5 text-sm font-medium transition ${
-        isActive ? 'bg-white/[0.08] text-ink' : 'text-neutral-400 hover:bg-white/[0.04] hover:text-ink'
+      className={`flex items-center gap-2.5 whitespace-nowrap rounded-lg px-2.5 py-2 text-sm font-medium transition ${
+        isActive ? 'bg-signal/10 text-signal' : 'text-neutral-400 hover:bg-white/[0.04] hover:text-ink'
       }`}
     >
+      {icon && <span className={isActive ? 'text-signal' : 'text-neutral-600'}>{icon}</span>}
       {children}
     </Link>
   );

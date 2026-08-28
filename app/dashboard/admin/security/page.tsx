@@ -74,7 +74,7 @@ export default function AdminSecurityPage() {
 
   return (
     <div>
-      <p className="font-mono text-xs font-medium uppercase tracking-[0.2em] text-neutral-500">Admin</p>
+      <p className="font-mono text-xs font-medium uppercase tracking-[0.2em] text-signal">Admin</p>
       <h1 className="mt-2 text-2xl font-bold text-ink">Admin security</h1>
       <p className="mt-1 text-sm text-neutral-400">
         Two-factor authentication is required for admin/owner logins once enabled.
@@ -88,7 +88,7 @@ export default function AdminSecurityPage() {
             <button
               onClick={startSetup}
               disabled={busy}
-              className="mt-4 rounded-lg bg-ink px-5 py-2.5 text-sm font-bold text-paper hover:bg-neutral-200 disabled:opacity-50"
+              className="mt-4 rounded-lg bg-signal px-5 py-2.5 text-sm font-bold text-paper hover:bg-signal/90 disabled:opacity-50"
             >
               Start setup
             </button>
@@ -104,12 +104,12 @@ export default function AdminSecurityPage() {
               placeholder="Enter the 6-digit code"
               inputMode="numeric"
               maxLength={6}
-              className="mt-4 w-full rounded-lg border border-white/10 bg-white/[0.04] px-3.5 py-2.5 text-sm text-ink outline-none focus:border-ink/30"
+              className="mt-4 w-full rounded-lg border border-white/10 bg-white/[0.04] px-3.5 py-2.5 text-sm text-ink outline-none focus:border-signal/40"
             />
             <button
               onClick={confirmEnable}
               disabled={busy || code.length !== 6}
-              className="mt-3 rounded-lg bg-ink px-5 py-2.5 text-sm font-bold text-paper hover:bg-neutral-200 disabled:opacity-50"
+              className="mt-3 rounded-lg bg-signal px-5 py-2.5 text-sm font-bold text-paper hover:bg-signal/90 disabled:opacity-50"
             >
               Confirm & enable
             </button>
@@ -125,7 +125,7 @@ export default function AdminSecurityPage() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           placeholder="Current password"
-          className="mt-3 w-full rounded-lg border border-white/10 bg-white/[0.04] px-3.5 py-2.5 text-sm text-ink outline-none focus:border-ink/30"
+          className="mt-3 w-full rounded-lg border border-white/10 bg-white/[0.04] px-3.5 py-2.5 text-sm text-ink outline-none focus:border-signal/40"
         />
         <button
           onClick={disable}

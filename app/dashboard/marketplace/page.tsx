@@ -147,38 +147,40 @@ export default function DashboardMarketplacePage() {
 
         <div>
           <h2 className="font-bold text-ink">Your uploads</h2>
-          <div className="mt-4 space-y-3">
+          <div className="mt-4">
             {mine === null ? (
               <div className="h-20 animate-pulse rounded-xl border border-white/10 bg-white/[0.02]" />
             ) : mine.length === 0 ? (
               <p className="text-sm text-neutral-500">Nothing uploaded yet.</p>
             ) : (
-              mine.map((c) => (
-                <div key={c.id} className="rounded-xl border border-white/10 bg-white/[0.02] p-4">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <Link href={`/marketplace/${c.id}`} className="font-semibold text-ink hover:underline">
-                        {c.name}
-                      </Link>
-                      <p className="mt-0.5 text-xs text-neutral-500">↓{c.download_count} downloads</p>
-                    </div>
-                    <div className="flex shrink-0 items-center gap-2">
-                      <button
-                        onClick={() => onDownload(c)}
-                        className="rounded-md border border-white/10 px-2 py-1 text-[11px] font-semibold text-neutral-300 hover:bg-white/[0.05]"
-                      >
-                        Download
-                      </button>
-                      <button
-                        onClick={() => onDelete(c)}
-                        className="rounded-md border border-red-500/30 px-2 py-1 text-[11px] font-semibold text-red-400 hover:bg-red-500/10"
-                      >
-                        Delete
-                      </button>
+              <div className="overflow-hidden rounded-xl border border-white/10">
+                {mine.map((c, i) => (
+                  <div key={c.id} className={`bg-white/[0.02] p-4 ${i !== 0 ? 'border-t border-white/[0.08]' : ''}`}>
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <Link href={`/marketplace/${c.id}`} className="font-semibold text-ink hover:text-signal hover:underline">
+                          {c.name}
+                        </Link>
+                        <p className="mt-0.5 font-mono text-xs text-signal">↓{c.download_count} downloads</p>
+                      </div>
+                      <div className="flex shrink-0 items-center gap-2">
+                        <button
+                          onClick={() => onDownload(c)}
+                          className="rounded-md border border-white/10 px-2 py-1 text-[11px] font-semibold text-neutral-300 hover:border-signal/30 hover:bg-white/[0.05]"
+                        >
+                          Download
+                        </button>
+                        <button
+                          onClick={() => onDelete(c)}
+                          className="rounded-md border border-red-500/30 px-2 py-1 text-[11px] font-semibold text-red-400 hover:bg-red-500/10"
+                        >
+                          Delete
+                        </button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))
+                ))}
+              </div>
             )}
           </div>
         </div>

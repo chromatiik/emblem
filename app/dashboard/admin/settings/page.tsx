@@ -54,7 +54,7 @@ export default function SettingsPage() {
 
   return (
     <div>
-      <p className="font-mono text-xs font-medium uppercase tracking-[0.2em] text-neutral-500">Admin</p>
+      <p className="font-mono text-xs font-medium uppercase tracking-[0.2em] text-signal">Admin</p>
       <h1 className="mt-2 text-2xl font-bold text-ink">Settings</h1>
       <p className="mt-1 text-sm text-neutral-400">
         Site-wide configuration. Changes take effect immediately — the landing page and <code>/discord</code> read these
@@ -72,12 +72,12 @@ export default function SettingsPage() {
               value={discordUrl}
               onChange={(e) => setDiscordUrl(e.target.value)}
               placeholder="https://discord.gg/your-invite"
-              className="flex-1 rounded-lg border border-white/10 bg-white/[0.04] px-3.5 py-2.5 text-sm text-ink outline-none focus:border-ink/30"
+              className="flex-1 rounded-lg border border-white/10 bg-white/[0.04] px-3.5 py-2.5 text-sm text-ink outline-none focus:border-signal/40"
             />
             <button
               onClick={() => save('discord_invite_url', discordUrl)}
               disabled={saving === 'discord_invite_url'}
-              className="rounded-lg bg-ink px-4 py-2.5 text-sm font-bold text-paper transition hover:bg-neutral-200 disabled:opacity-50"
+              className="rounded-lg bg-signal px-4 py-2.5 text-sm font-bold text-paper transition hover:bg-signal/90 disabled:opacity-50"
             >
               Save
             </button>
@@ -100,7 +100,7 @@ export default function SettingsPage() {
             <button
               onClick={() => save('script_status', scriptStatus)}
               disabled={saving === 'script_status'}
-              className="rounded-lg bg-ink px-4 py-2.5 text-sm font-bold text-paper transition hover:bg-neutral-200 disabled:opacity-50"
+              className="rounded-lg bg-signal px-4 py-2.5 text-sm font-bold text-paper transition hover:bg-signal/90 disabled:opacity-50"
             >
               Save
             </button>
@@ -121,12 +121,12 @@ export default function SettingsPage() {
               value={currentVersion}
               onChange={(e) => setCurrentVersion(e.target.value)}
               placeholder="1.0.0"
-              className="flex-1 rounded-lg border border-white/10 bg-white/[0.04] px-3.5 py-2.5 text-sm text-ink outline-none focus:border-ink/30"
+              className="flex-1 rounded-lg border border-white/10 bg-white/[0.04] px-3.5 py-2.5 text-sm text-ink outline-none focus:border-signal/40"
             />
             <button
               onClick={() => save('current_version', currentVersion)}
               disabled={saving === 'current_version'}
-              className="rounded-lg bg-ink px-4 py-2.5 text-sm font-bold text-paper transition hover:bg-neutral-200 disabled:opacity-50"
+              className="rounded-lg bg-signal px-4 py-2.5 text-sm font-bold text-paper transition hover:bg-signal/90 disabled:opacity-50"
             >
               Save
             </button>

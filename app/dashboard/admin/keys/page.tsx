@@ -97,7 +97,7 @@ export default function AdminKeysPage() {
 
   return (
     <div>
-      <p className="font-mono text-xs font-medium uppercase tracking-[0.2em] text-neutral-500">Admin</p>
+      <p className="font-mono text-xs font-medium uppercase tracking-[0.2em] text-signal">Admin</p>
       <h1 className="mt-2 text-2xl font-bold text-ink">Keys</h1>
 
       <div className="mt-4 rounded-2xl border border-white/10 bg-white/[0.035] p-6 backdrop-blur">
@@ -127,13 +127,13 @@ export default function AdminKeysPage() {
               onChange={(e) => setDays(e.target.value)}
               inputMode="numeric"
               placeholder="30"
-              className="mt-1 block w-40 rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2 text-sm text-ink outline-none focus:border-ink/30"
+              className="mt-1 block w-40 rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2 text-sm text-ink outline-none focus:border-signal/40"
             />
           </label>
           <button
             type="submit"
             disabled={generating}
-            className="rounded-lg bg-ink px-5 py-2.5 text-sm font-bold text-paper transition hover:bg-neutral-200 disabled:opacity-50"
+            className="rounded-lg bg-signal px-5 py-2.5 text-sm font-bold text-paper transition hover:bg-signal/90 disabled:opacity-50"
           >
             {generating ? 'Generating…' : 'Generate'}
           </button>
@@ -142,7 +142,7 @@ export default function AdminKeysPage() {
         {newKey && (
           <div className="mt-4 flex items-center justify-between gap-3 rounded-lg border border-emerald-500/30 bg-emerald-950/40 px-4 py-3">
             <div>
-              <div className="text-xs font-semibold text-emerald-400">New key — shown once, copy it now:</div>
+              <div className="text-xs font-semibold text-signal">New key — shown once, copy it now:</div>
               <code className="font-mono text-sm text-ink">{newKey}</code>
             </div>
             <CopyButton text={newKey} />
@@ -153,7 +153,7 @@ export default function AdminKeysPage() {
       <p className="mt-6 text-xs text-neutral-500 sm:hidden">Swipe left/right to see more columns →</p>
       <div className="mt-2 overflow-x-auto rounded-2xl border border-white/10 sm:mt-6">
         <table className="w-full min-w-[760px] text-sm">
-          <thead className="bg-white/[0.03] text-left text-xs uppercase tracking-wide text-neutral-400">
+          <thead className="bg-white/[0.03] text-left font-mono text-[10px] uppercase tracking-wide text-neutral-500">
             <tr>
               <th className="whitespace-nowrap px-4 py-3">Key</th>
               <th className="whitespace-nowrap px-4 py-3">Owner</th>
@@ -207,7 +207,7 @@ export default function AdminKeysPage() {
 
 function StatusBadge({ status }: { status: string }) {
   const colors: Record<string, string> = {
-    active: 'text-emerald-400 border-emerald-500/30 bg-emerald-500/10',
+    active: 'text-signal border-signal/30 bg-signal/10',
     revoked: 'text-neutral-400 border-white/10 bg-white/[0.04]',
     banned: 'text-red-400 border-red-500/30 bg-red-500/10',
     expired: 'text-amber-400 border-amber-500/30 bg-amber-500/10',

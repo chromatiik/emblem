@@ -67,7 +67,7 @@ export default async function ConfigDetailPage({ params }: { params: { id: strin
                 <Link
                   key={tag}
                   href={`/marketplace?tag=${encodeURIComponent(tag)}`}
-                  className="rounded-full border border-white/10 bg-white/[0.03] px-2.5 py-1 text-xs font-medium text-neutral-400 hover:bg-white/[0.06] hover:text-ink"
+                  className="rounded-full border border-white/10 bg-white/[0.03] px-2.5 py-1 text-xs font-medium text-neutral-400 hover:border-signal/30 hover:bg-white/[0.06] hover:text-signal"
                 >
                   {tag}
                 </Link>
@@ -94,8 +94,8 @@ export default async function ConfigDetailPage({ params }: { params: { id: strin
           </div>
 
           <div className="lg:col-span-4">
-            <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-6">
-              <div className="text-2xl font-bold text-ink">{downloadCount}</div>
+            <div className="rounded-2xl border border-signal/20 bg-signal/[0.04] p-6">
+              <div className="font-mono text-3xl font-black tracking-tight text-signal">{downloadCount}</div>
               <div className="mt-1 font-mono text-[10px] uppercase tracking-[0.1em] text-neutral-500">Downloads</div>
             </div>
           </div>

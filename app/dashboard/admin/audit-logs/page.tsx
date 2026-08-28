@@ -23,14 +23,14 @@ export default function AdminAuditLogsPage() {
 
   return (
     <div>
-      <p className="font-mono text-xs font-medium uppercase tracking-[0.2em] text-neutral-500">Admin</p>
+      <p className="font-mono text-xs font-medium uppercase tracking-[0.2em] text-signal">Admin</p>
       <h1 className="mt-2 text-2xl font-bold text-ink">Audit logs</h1>
       <p className="mt-1 text-sm text-neutral-400">Every sensitive action taken by an admin, most recent first.</p>
 
       <p className="mt-6 text-xs text-neutral-500 sm:hidden">Swipe left/right to see more columns →</p>
       <div className="mt-2 overflow-x-auto rounded-2xl border border-white/10 sm:mt-6">
         <table className="w-full min-w-[700px] text-sm">
-          <thead className="bg-white/[0.03] text-left text-xs uppercase tracking-wide text-neutral-400">
+          <thead className="bg-white/[0.03] text-left font-mono text-[10px] uppercase tracking-wide text-neutral-500">
             <tr>
               <th className="whitespace-nowrap px-4 py-3">Actor</th>
               <th className="whitespace-nowrap px-4 py-3">Action</th>

@@ -69,7 +69,7 @@ export default function AdminVisitorsPage() {
 
   return (
     <div>
-      <p className="font-mono text-xs font-medium uppercase tracking-[0.2em] text-neutral-500">Admin</p>
+      <p className="font-mono text-xs font-medium uppercase tracking-[0.2em] text-signal">Admin</p>
       <h1 className="mt-2 text-2xl font-bold text-ink">Visitors</h1>
       <p className="mt-1 text-sm text-neutral-400">
         Every IP that has loaded the site, whether or not it&apos;s ever been tied to an account. Banning here blocks the
@@ -100,7 +100,7 @@ export default function AdminVisitorsPage() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search by IP or username..."
-          className="w-full max-w-xs rounded-lg border border-white/10 bg-white/[0.04] px-3.5 py-2 text-sm text-ink outline-none focus:border-ink/30"
+          className="w-full max-w-xs rounded-lg border border-white/10 bg-white/[0.04] px-3.5 py-2 text-sm text-ink outline-none focus:border-signal/40"
         />
         <button type="submit" className="rounded-lg border border-white/10 px-4 py-2 text-sm font-semibold text-neutral-300 hover:bg-white/[0.05]">
           Search
@@ -110,7 +110,7 @@ export default function AdminVisitorsPage() {
       <p className="mt-6 text-xs text-neutral-500 sm:hidden">Swipe left/right to see more columns →</p>
       <div className="mt-2 overflow-x-auto rounded-2xl border border-white/10 sm:mt-6">
         <table className="w-full min-w-[720px] text-sm">
-          <thead className="bg-white/[0.03] text-left text-xs uppercase tracking-wide text-neutral-400">
+          <thead className="bg-white/[0.03] text-left font-mono text-[10px] uppercase tracking-wide text-neutral-500">
             <tr>
               <th className="whitespace-nowrap px-4 py-3">IP</th>
               <th className="whitespace-nowrap px-4 py-3">Account</th>
